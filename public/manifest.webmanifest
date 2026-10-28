@@ -1,0 +1,14 @@
+{
+  "id": "/",
+  "name": "ObservaBrasil — O poder público sob o olhar de todos",
+  "short_name": "ObservaBrasil",
+  "description": "Acompanhe governos, consulte dados oficiais e entenda os registros públicos com fontes e contexto.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f8f5",
+  "theme_color": "#104a32",
+  "icons": [{"src":"/observabr-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
