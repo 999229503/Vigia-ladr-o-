@@ -96,18 +96,3 @@ body{background:#eaf2ff;font-family:'DM Sans',sans-serif;color:#132a4a}
 .backdrop{
   overscroll-behavior: contain;
 }
-/* TRAVAR ZOOM TOTAL */
-html, body {
-  touch-action: manipulation;
-  -ms-touch-action: manipulation;
-  overscroll-behavior: none;
-}
-button, .row, .card-main, .grid4 button, .avatar {
-  touch-action: manipulation;
-}
-img {
-  pointer-events: none;
-}
-.modal-photo {
-  pointer-events: none;
-}
