@@ -59,3 +59,7 @@ body{background:#eaf2ff;font-family:'DM Sans',sans-serif;color:#132a4a}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
 .stat-box{background:#f6f9ff;border-radius:14px;padding:14px}
 .stat-box strong{display:block;margin-top:8px;font-size:14px}.stat-box span{font-size:11px;color:#6a7d94}
+/* FIX PRESIDENTES - não ficar atrás do menu */
+.page-card .list{padding-bottom:100px}
+.page-card{padding-bottom:100px}
+.row:last-child{border-bottom:0}
