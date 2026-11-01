@@ -1,7 +1,7 @@
 import { useState, useRef, type TouchEvent as ReactTouchEvent } from "react";
 import { 
-  Menu, User, Check, Clock, XCircle, TrendingUp, Heart, 
-  GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid 
+  Menu, User, Check, Clock, XCircle, BarChart2, Heart, 
+  GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid, Fuel 
 } from "lucide-react";
 
 type Section = "Início" | "Presidentes" | "Promessas" | "Mais";
@@ -18,7 +18,6 @@ export default function App() {
     }
   }
 
-  // Lógica para deslizar a tela pro lado (Swipe)
   function handleTouchStart(e: ReactTouchEvent<HTMLDivElement>) {
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
@@ -62,7 +61,7 @@ export default function App() {
             </div>
           </div>
 
-          <button className="header-icon-btn user-avatar-btn" aria-label="Perfil">
+          <button className="header-icon-btn" aria-label="Perfil" style={{ background: "#e6f4ea", borderColor: "#ceebd6", color: "#138808" }}>
             <User size={20} />
           </button>
         </div>
@@ -73,13 +72,10 @@ export default function App() {
         <div className="content">
           {section === "Início" && (
             <>
-              {/* Card Hero */}
-              <section className="hero-card">
-                <div className="hero-overlay" />
-                <div className="hero-content">
-                  <h1>Olá, Cidadão!</h1>
-                  <p>Aqui você acompanha o governo de forma simples e visual.</p>
-                </div>
+              {/* Saudação */}
+              <section className="greeting-section">
+                <h1>Olá, Cidadão!</h1>
+                <p>Aqui você acompanha o governo de forma simples e visual.</p>
               </section>
 
               {/* Card Promessas Cumpridas (Ring + Stats) */}
@@ -88,9 +84,6 @@ export default function App() {
                   <div className="ring-inner">
                     <strong>67%</strong>
                     <span>Promessas<br/>Cumpridas</span>
-                    <div className="ring-check-icon">
-                      <Check size={12} strokeWidth={3} />
-                    </div>
                   </div>
                 </div>
 
@@ -127,7 +120,7 @@ export default function App() {
                 </div>
               </section>
 
-              {/* Grid 2x2 com Indicadores e Sparklines */}
+              {/* Grid 2x2 com Indicadores */}
               <section className="indicators-grid">
                 {/* Economia */}
                 <div className="indicator-card-v3">
@@ -135,14 +128,10 @@ export default function App() {
                     <div className="indicator-icon-bg gold">💰</div>
                     <div className="indicator-title-group">
                       <span>Economia</span>
-                      <strong>+4,5%</strong>
-                      <small>PIB 2025</small>
+                      <strong>+4,5% PIB</strong>
+                      <small>R$ 5.90</small>
                     </div>
                   </div>
-                  <svg className="sparkline-svg" viewBox="0 0 100 30" preserveAspectRatio="none">
-                    <path d="M0,25 Q25,20 50,22 T100,5 L100,30 L0,30 Z" fill="#fff8e1" opacity="0.6" />
-                    <path d="M0,25 Q25,20 50,22 T100,5" fill="none" stroke="#ffa000" strokeWidth="2.5" />
-                  </svg>
                 </div>
 
                 {/* Saúde */}
@@ -153,14 +142,10 @@ export default function App() {
                     </div>
                     <div className="indicator-title-group">
                       <span>Saúde</span>
-                      <strong>92%</strong>
-                      <small>SUS</small>
+                      <strong>92% SUS</strong>
+                      <small>48 mil UBS</small>
                     </div>
                   </div>
-                  <svg className="sparkline-svg" viewBox="0 0 100 30" preserveAspectRatio="none">
-                    <path d="M0,28 Q30,25 60,15 T100,8 L100,30 L0,30 Z" fill="#e8eaf6" opacity="0.6" />
-                    <path d="M0,28 Q30,25 60,15 T100,8" fill="none" stroke="#3f51b5" strokeWidth="2.5" />
-                  </svg>
                 </div>
 
                 {/* Educação */}
@@ -171,14 +156,10 @@ export default function App() {
                     </div>
                     <div className="indicator-title-group">
                       <span>Educação</span>
-                      <strong>6,4%</strong>
-                      <small>IDEB</small>
+                      <strong>6,4 IDEB</strong>
+                      <small>Fundeb R$ 287bi</small>
                     </div>
                   </div>
-                  <svg className="sparkline-svg" viewBox="0 0 100 30" preserveAspectRatio="none">
-                    <path d="M0,25 L25,22 L50,18 L75,12 L100,5 L100,30 L0,30 Z" fill="#e8eaf6" opacity="0.6" />
-                    <path d="M0,25 L25,22 L50,18 L75,12 L100,5" fill="none" stroke="#5c6bc0" strokeWidth="2.5" />
-                  </svg>
                 </div>
 
                 {/* Segurança */}
@@ -189,23 +170,32 @@ export default function App() {
                     </div>
                     <div className="indicator-title-group">
                       <span>Segurança</span>
-                      <strong>-12%</strong>
-                      <small>Crimes</small>
+                      <strong>-12% Crimes</strong>
+                      <small>Atlas 2024</small>
                     </div>
                   </div>
-                  <svg className="sparkline-svg" viewBox="0 0 100 30" preserveAspectRatio="none">
-                    <path d="M0,10 Q40,25 70,18 T100,28 L100,30 L0,30 Z" fill="#ffebee" opacity="0.6" />
-                    <path d="M0,10 Q40,25 70,18 T100,28" fill="none" stroke="#e91e63" strokeWidth="2.5" />
-                  </svg>
                 </div>
               </section>
 
-              {/* Banner de Obras */}
-              <section className="works-banner-card">
-                <div className="works-banner-icon">🇧🇷</div>
-                <div className="works-banner-text">
-                  <strong>O que está sendo feito?</strong>
-                  <p>Novo PAC impulsiona obras em todo o Brasil!</p>
+              {/* Card Combustíveis ANP */}
+              <section className="fuel-card-container">
+                <div className="fuel-card-title">
+                  <Fuel size={18} color="#0d253f" />
+                  <span>Combustíveis hoje - ANP</span>
+                </div>
+                <div className="fuel-grid-3">
+                  <div className="fuel-box">
+                    <span>Gasolina</span>
+                    <strong>R$ 5.90</strong>
+                  </div>
+                  <div className="fuel-box">
+                    <span>Etanol</span>
+                    <strong>R$ 3.90</strong>
+                  </div>
+                  <div className="fuel-box">
+                    <span>Diesel</span>
+                    <strong>R$ 6.27</strong>
+                  </div>
                 </div>
               </section>
             </>
@@ -241,7 +231,7 @@ export default function App() {
         </button>
 
         <button className="nav-tab-main-btn" aria-label="Dashboard Central">
-          <TrendingUp size={24} />
+          <BarChart2 size={24} />
         </button>
 
         <button 
