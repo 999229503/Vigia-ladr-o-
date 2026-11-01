@@ -88,7 +88,7 @@ export default function App() {
                   {filtered.map(p=>(
                     <button key={p.id} className="row" type="button" onClick={()=>setSelected(p)}>
                       <div className="avatar">{p.name.slice(0,2).toUpperCase()}</div>
-                      <div className="row-text"><strong>{p.name}</strong><span>{p.period}</span></div>
+                      <div className="row-text"><strong>{p.name}</strong><span>{p.era || p.period}</span></div>
                       <ChevronRight size={16}/>
                     </button>
                   ))}
