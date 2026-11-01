@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Menu, User, Check, Clock, X, Home, Users, BarChart3, ListChecks, Grid3X3, ChevronRight, Search, TrendingUp } from "lucide-react";
+import { Menu, User, Check, Clock, X, Home, Users, ListChecks, Grid3X3, ChevronRight, Search, TrendingUp } from "lucide-react";
 import { presidents } from "./data/presidents";
 import type { President } from "./data/presidents";
 
