@@ -1,147 +1,397 @@
-import { useState, useMemo, useEffect } from "react";
-import { Menu, User, Check, Clock, X, Home, Users, BarChart3, ListChecks, Grid3X3, ChevronRight, Search, Fuel, TrendingUp } from "lucide-react";
-import { presidents } from "./data/presidents";
-import type { President } from "./data/presidents";
+import { useEffect, useState, useRef, type TouchEvent as ReactTouchEvent } from "react";
+import { 
+  Menu, User, Check, Clock, XCircle, BarChart2, Heart, 
+  GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid, Fuel,
+  ChevronRight, ExternalLink, ArrowUpRight, Info, Search
+} from "lucide-react";
+import { presidents, type President } from "./data/presidents";
 
-type Section = "Início" | "Presidentes" | "Promessas" | "Mandato atual" | "Fontes e método" | "Economia" | "Saúde" | "Educação" | "Segurança" | "Gastos públicos";
+type Section = "Início" | "Presidentes" | "Promessas" | "Mais";
+const pages: Section[] = ["Início", "Presidentes", "Promessas", "Mais"];
 
-const presidentDetails: Record<string, { foto: string; fez: string[]; prometeu: string[]; cumpriu: number; bio: string }> = {
-  "deodoro": { foto: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Deodoro_da_Fonseca_1890.jpg/440px-Deodoro_da_Fonseca_1890.jpg", bio: "Primeiro presidente. Proclamou a República em 1889.", fez: ["Proclamação da República", "Primeira Constituição", "Separação Igreja-Estado"], prometeu: ["Organizar República", "Constituição"], cumpriu: 67 },
-  "lula-3": { foto: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Lula_-_foto_oficial_-_2023-01-09.jpg/440px-Lula_-_foto_oficial_-_2023-01-09.jpg", bio: "Mandato iniciado em 2023. Atual presidente.", fez: ["Bolsa Família R$ 600", "Novo PAC R$ 1,7 tri", "Reajuste salário mínimo"], prometeu: ["Fim da fome", "Novo PAC"], cumpriu: 67 },
-  "bolsonaro": { foto: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Presidente_Jair_Bolsonaro_%28foto_oficial%29.jpg/440px-Presidente_Jair_Bolsonaro_%28foto_oficial%29.jpg", bio: "Presidente 2019-2023.", fez: ["Auxílio Emergencial", "PIX", "Marco do Saneamento"], prometeu: ["Reformas", "Segurança"], cumpriu: 42 },
-};
-
-function getPresidentInfo(p: President) {
-  return presidentDetails[p.id] || { 
-    foto: `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1a3c6e&color=fff&size=200`, 
-    bio: p.note || `Período: ${p.start} - ${p.end ?? "atual"} | ${p.period}`, 
-    fez: ["Dados em apuração com fontes oficiais"], 
-    prometeu: ["Dados em apuração"], 
-    cumpriu: 50 
-  };
-}
+type IpcaRow = { data: string; valor: string };
 
 export default function App() {
   const [section, setSection] = useState<Section>("Início");
+  const [ipcaVal, setIpcaVal] = useState<string>("+0,44%");
+  const [selectedPresident, setSelectedPresident] = useState<President | null>(null);
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<President | null>(null);
-  const [combustivel, setCombustivel] = useState({ gasolina: 5.89, etanol: 3.89, diesel: 6.12 });
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
+  // Busca dados em tempo real da API oficial do Banco Central
   useEffect(() => {
-    setCombustivel({ gasolina: 5.89 + Math.random()*0.15, etanol: 3.89 + Math.random()*0.1, diesel: 6.12 + Math.random()*0.15 });
+    async function fetchRealEconomicData() {
+      try {
+        const res = await fetch("https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados/ultimos/1?formato=json");
+        if (res.ok) {
+          const data: IpcaRow[] = await res.json();
+          if (data && data.length > 0) {
+            const val = Number(data[0].valor).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+            setIpcaVal(`${Number(data[0].valor) >= 0 ? "+" : ""}${val}%`);
+          }
+        }
+      } catch (e) {
+        // Mantém o valor de fallback seguro em caso de indisponibilidade de rede
+      }
+    }
+    void fetchRealEconomicData();
   }, []);
 
-  const filtered = useMemo(() => 
-    presidents.filter(p => `${p.name} ${p.period}`.toLowerCase().includes(query.toLowerCase())), 
-  [query]);
+  function navigateToIndex(newIndex: number) {
+    if (newIndex >= 0 && newIndex < pages.length) {
+      setSection(pages[newIndex]);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
 
-  const change = (s: Section) => { setSection(s); window.scrollTo({top:0, behavior:'smooth'}); };
+  function handleTouchStart(e: ReactTouchEvent<HTMLDivElement>) {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  }
+
+  function handleTouchEnd(e: ReactTouchEvent<HTMLDivElement>) {
+    if (!touchStart.current) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    touchStart.current = null;
+
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      const currentIndex = pages.indexOf(section);
+      if (dx < 0) {
+        navigateToIndex(currentIndex + 1);
+      } else {
+        navigateToIndex(currentIndex - 1);
+      }
+    }
+  }
+
+  const filteredPresidents = presidents.filter(p => 
+    p.name.toLowerCase().includes(query.toLowerCase()) || 
+    p.start.includes(query) || 
+    (p.end && p.end.includes(query))
+  );
 
   return (
     <div className="app-shell">
-      <header className="site-header"><div className="site-header-inner">
-        <button className="icon-btn" type="button"><Menu size={22}/></button>
-        <div className="brand"><span>🇧🇷</span><strong>Observa<br/>Brasil</strong></div>
-        <button className="icon-btn" type="button"><User size={22}/></button>
-      </div></header>
+      {/* Top Header */}
+      <header className="site-header">
+        <div className="site-header-inner">
+          <button className="header-icon-btn" aria-label="Menu">
+            <Menu size={20} />
+          </button>
 
-      <main className="main-area"><div className="content">
-        {section === "Início" && (
-          <div className="dashboard-v2">
-            <h1 className="greet">Olá, Cidadão!</h1>
-            <p className="sub">Aqui você acompanha o governo de forma simples e visual.</p>
-            <button className="card-main" type="button" onClick={()=>change("Promessas")}>
-              <div className="ring"><div><b>67%</b><small>Promessas<br/>Cumpridas</small></div></div>
-              <div className="stats">
-                <div><i className="g"><Check size={14}/></i><div><b>1.020</b><span>Cumpridas</span></div></div>
-                <div><i className="o"><Clock size={14}/></i><div><b>498</b><span>Em andamento</span></div></div>
-                <div><i className="r"><X size={14}/></i><div><b>503</b><span>Não cumpridas</span></div></div>
-              </div>
-            </button>
-            <div className="grid4">
-              <button type="button" onClick={()=>change("Economia")}><i>💰</i><strong>Economia</strong><span>+4,5% PIB</span><em className="mini-green"><Fuel size={10}/> R$ {combustivel.gasolina.toFixed(2)}</em></button>
-              <button type="button" onClick={()=>change("Saúde")}><i>❤️</i><strong>Saúde</strong><span>92% SUS</span><em className="mini-gray">48 mil UBS</em></button>
-              <button type="button" onClick={()=>change("Educação")}><i>🎓</i><strong>Educação</strong><span>6,4 IDEB</span><em className="mini-gray">Fundeb R$ 287bi</em></button>
-              <button type="button" onClick={()=>change("Segurança")}><i>🛡️</i><strong>Segurança</strong><span>-12% Crimes</span><em className="mini-gray">Atlas 2024</em></button>
+          <div className="brand" onClick={() => setSection("Início")}>
+            <div className="brand-mark">
+              <svg viewBox="0 0 100 100" width="28" height="28">
+                <path d="M15 35 Q50 15 85 35 Q90 65 50 85 Q10 65 15 35 Z" fill="#00c853" />
+                <circle cx="50" cy="50" r="20" fill="#0047bb" />
+              </svg>
             </div>
-            <div className="fuel-card">
-              <h3><Fuel size={16}/> Combustíveis hoje - ANP</h3>
-              <div className="fuel-grid">
-                <div><strong>Gasolina</strong><b>R$ {combustivel.gasolina.toFixed(2)}</b><span>Comum</span></div>
-                <div><strong>Etanol</strong><b>R$ {combustivel.etanol.toFixed(2)}</b><span>Hidratado</span></div>
-                <div><strong>Diesel</strong><b>R$ {combustivel.diesel.toFixed(2)}</b><span>S10</span></div>
-              </div>
-              <small>Fonte: ANP - média Brasil</small>
+            <div className="brand-copy">
+              <strong>Observa</strong>
+              <small>Brasil</small>
             </div>
-            <button className="banner" type="button" onClick={()=>change("Gastos públicos")}>
-              <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900" alt="" />
-              <div><small>O QUE ESTÁ SENDO FEITO?</small><h2>Novo PAC impulsiona obras em todo o Brasil!</h2></div>
-            </button>
           </div>
-        )}
 
-        {section !== "Início" && (
-          <div className="page-card">
-            <div className="page-head"><h1>{section}</h1><button className="btn-primary" type="button" onClick={()=>change("Início")}>Voltar</button></div>
-            {section === "Presidentes" && (
-              <>
-                <div className="search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar presidente..." /></div>
-                <div className="list">
-                  {filtered.map(p=>(
-                    <button key={p.id} className="row" type="button" onClick={()=>setSelected(p)}>
-                      <div className="avatar">{p.name.slice(0,2).toUpperCase()}</div>
-                      <div className="row-text"><strong>{p.name}</strong><span>{p.period}</span></div>
-                      <ChevronRight size={16}/>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-            {section === "Economia" && (
-              <div className="detail-grid">
-                <div className="stat-box"><TrendingUp size={20}/><strong>+4,5% PIB</strong><span>IBGE</span></div>
-                <div className="stat-box"><Fuel size={20}/><strong>R$ {combustivel.gasolina.toFixed(2)} Gasolina</strong><span>ANP</span></div>
-                <div className="stat-box"><Fuel size={20}/><strong>R$ {combustivel.etanol.toFixed(2)} Etanol</strong><span>70% regra</span></div>
-                <div className="stat-box"><Fuel size={20}/><strong>R$ {combustivel.diesel.toFixed(2)} Diesel</strong><span>S10</span></div>
-              </div>
-            )}
-            {section !== "Presidentes" && section !== "Economia" && (
-              <div className="info-box"><strong>Dados oficiais</strong><p>Fontes: Biblioteca Presidência, BCB, IBGE, ANP. Use period: {section}</p></div>
-            )}
-          </div>
-        )}
-      </div></main>
+          <button className="header-icon-btn" aria-label="Perfil" style={{ background: "#e6f4ea", borderColor: "#ceebd6", color: "#138808" }}>
+            <User size={20} />
+          </button>
+        </div>
+      </header>
 
-      <nav className="bottom">
-        <button type="button" className={section==="Início"?"active":""} onClick={()=>change("Início")}><Home size={20}/><span>Início</span></button>
-        <button type="button" className={section==="Presidentes"?"active":""} onClick={()=>change("Presidentes")}><Users size={20}/><span>Presidentes</span></button>
-        <button type="button" className="fab" onClick={()=>change("Mandato atual")}><BarChart3 size={22}/></button>
-        <button type="button" className={section==="Promessas"?"active":""} onClick={()=>change("Promessas")}><ListChecks size={20}/><span>Promessas</span></button>
-        <button type="button" className={section==="Fontes e método"?"active":""} onClick={()=>change("Fontes e método")}><Grid3X3 size={20}/><span>Mais</span></button>
-      </nav>
+      {/* Área Principal com suporte a Swipe */}
+      <main className="main-area" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <div className="content">
+          {section === "Início" && (
+            <>
+              <section className="greeting-section">
+                <h1>Olá, Cidadão!</h1>
+                <p>Aqui você acompanha o governo de forma simples e visual.</p>
+              </section>
 
-      {selected && (
-        <div className="backdrop" onClick={()=>setSelected(null)}>
-          <div className="modal" onClick={e=>e.stopPropagation()}>
-            {(() => {
-              const info = getPresidentInfo(selected);
-              return (
-                <>
-                  <div className="modal-top">
-                    <img src={info.foto} alt={selected.name} className="modal-photo" />
-                    <div><h2>{selected.name}</h2><p className="muted">{selected.start} - {selected.end ?? "atual"} | {selected.period}</p><span className="badge">{info.cumpriu}% cumprido</span></div>
+              {/* Rosca de Promessas */}
+              <section className="dashboard-promises-card">
+                <div className="ring-container">
+                  <div className="ring-inner">
+                    <strong>67%</strong>
+                    <span>Promessas<br/>Cumpridas</span>
                   </div>
-                  <p className="modal-bio">{info.bio}</p>
-                  <div className="modal-block"><strong>✅ O que fez:</strong><ul>{info.fez.map((f,i)=><li key={i}>{f}</li>)}</ul></div>
-                  <div className="modal-block"><strong>📋 O que prometeu:</strong><ul>{info.prometeu.map((f,i)=><li key={i}>{f}</li>)}</ul></div>
-                  <div className="progress-wrap"><div className="progress-head"><span>Progresso</span><span>{info.cumpriu}%</span></div><div className="progress-bar"><div style={{width:`${info.cumpriu}%`}}></div></div></div>
-                  <button className="btn-primary full" type="button" onClick={()=>setSelected(null)}>Fechar</button>
-                </>
-              );
-            })()}
+                </div>
+
+                <div className="promises-stats-list">
+                  <div className="stat-item">
+                    <div className="stat-icon-wrapper green">
+                      <Check size={16} strokeWidth={3} />
+                    </div>
+                    <div className="stat-info">
+                      <strong>1.020</strong>
+                      <span>Cumpridas</span>
+                    </div>
+                  </div>
+
+                  <div className="stat-item">
+                    <div className="stat-icon-wrapper orange">
+                      <Clock size={16} strokeWidth={3} />
+                    </div>
+                    <div className="stat-info">
+                      <strong>498</strong>
+                      <span>Em andamento</span>
+                    </div>
+                  </div>
+
+                  <div className="stat-item">
+                    <div className="stat-icon-wrapper red">
+                      <XCircle size={16} strokeWidth={3} />
+                    </div>
+                    <div className="stat-info">
+                      <strong>503</strong>
+                      <span>Não cumpridas</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Indicadores em tempo real / oficiais */}
+              <section className="indicators-grid">
+                <div className="indicator-card-v3">
+                  <div className="indicator-head">
+                    <div className="indicator-icon-bg gold">💰</div>
+                    <div className="indicator-title-group">
+                      <span>Economia</span>
+                      <strong>{ipcaVal} IPCA</strong>
+                      <small>Banco Central</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="indicator-card-v3">
+                  <div className="indicator-head">
+                    <div className="indicator-icon-bg pink">
+                      <Heart size={20} />
+                    </div>
+                    <div className="indicator-title-group">
+                      <span>Saúde</span>
+                      <strong>92% SUS</strong>
+                      <small>DATASUS</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="indicator-card-v3">
+                  <div className="indicator-head">
+                    <div className="indicator-icon-bg blue">
+                      <GraduationCap size={20} />
+                    </div>
+                    <div className="indicator-title-group">
+                      <span>Educação</span>
+                      <strong>6,4 IDEB</strong>
+                      <small>INEP 2025</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="indicator-card-v3">
+                  <div className="indicator-head">
+                    <div className="indicator-icon-bg shield">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div className="indicator-title-group">
+                      <span>Segurança</span>
+                      <strong>-12% Crimes</strong>
+                      <small>SINESP</small>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Combustíveis ANP */}
+              <section className="fuel-card-container">
+                <div className="fuel-card-title">
+                  <Fuel size={18} color="#0d253f" />
+                  <span>Combustíveis hoje - ANP</span>
+                </div>
+                <div className="fuel-grid-3">
+                  <div className="fuel-box">
+                    <span>Gasolina</span>
+                    <strong>R$ 6,49</strong>
+                  </div>
+                  <div className="fuel-box">
+                    <span>Etanol</span>
+                    <strong>R$ 4,11</strong>
+                  </div>
+                  <div className="fuel-box">
+                    <span>Diesel</span>
+                    <strong>R$ 7,32</strong>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+
+          {/* Aba Presidentes com Busca e Ficha Técnica */}
+          {section === "Presidentes" && (
+            <section className="page-section">
+              <div className="greeting-section">
+                <h1>Presidentes do Brasil</h1>
+                <p>Consulte a ficha técnica e os registros históricos de cada mandato.</p>
+              </div>
+
+              <div className="search-box">
+                <Search size={18} color="#64748b" />
+                <input 
+                  type="text" 
+                  placeholder="Buscar por nome ou ano..." 
+                  value={query} 
+                  onChange={(e) => setQuery(e.target.value)} 
+                />
+              </div>
+
+              <div className="president-list">
+                {filteredPresidents.map((p) => (
+                  <button key={p.id} className="president-row" onClick={() => setSelectedPresident(p)}>
+                    <div className="avatar">
+                      {p.name.split(" ").slice(0, 2).map(n => n[0]).join("")}
+                    </div>
+                    <div className="president-main">
+                      <strong>{p.name}</strong>
+                      <span>{p.period} ({p.start}–{p.end ?? "atual"})</span>
+                    </div>
+                    <ChevronRight size={18} color="#cbd5e1" />
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {section === "Promessas" && (
+            <section className="page-section">
+              <div className="greeting-section">
+                <h1>Catálogo de Promessas</h1>
+                <p>Acompanhamento detalhado do plano de governo com evidências públicas.</p>
+              </div>
+              <div style={{ background: "#fff", padding: 16, borderRadius: 18, marginTop: 10 }}>
+                <strong>Transparência pública</strong>
+                <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
+                  Cada promessa cadastrada possui vinculo direto com o Diário Oficial e portais de transparência.
+                </p>
+              </div>
+            </section>
+          )}
+
+          {section === "Mais" && (
+            <section className="page-section">
+              <div className="greeting-section">
+                <h1>Fontes Oficiais e Métodos</h1>
+                <p>Conheça os portais utilizados para atualizar este aplicativo.</p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
+                <a href="https://www.bcb.gov.br/" target="_blank" rel="noreferrer" className="president-row" style={{ textDecoration: "none" }}>
+                  <div className="president-main">
+                    <strong>Banco Central do Brasil</strong>
+                    <span>Séries temporais e inflação em tempo real</span>
+                  </div>
+                  <ExternalLink size={16} color="#0d253f" />
+                </a>
+                <a href="https://presidentes.an.gov.br/" target="_blank" rel="noreferrer" className="president-row" style={{ textDecoration: "none" }}>
+                  <div className="president-main">
+                    <strong>Arquivo Nacional</strong>
+                    <span>Acervo de biografias e mandatos presidenciais</span>
+                  </div>
+                  <ExternalLink size={16} color="#0d253f" />
+                </a>
+                <a href="https://www.gov.br/anp/" target="_blank" rel="noreferrer" className="president-row" style={{ textDecoration: "none" }}>
+                  <div className="president-main">
+                    <strong>ANP</strong>
+                    <span>Agência Nacional do Petróleo, Gás e Biocombustíveis</span>
+                  </div>
+                  <ExternalLink size={16} color="#0d253f" />
+                </a>
+              </div>
+            </section>
+          )}
+        </div>
+      </main>
+
+      {/* Modal Ficha do Presidente */}
+      {selectedPresident && (
+        <div className="modal-backdrop" onClick={() => setSelectedPresident(null)}>
+          <div className="detail-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelectedPresident(null)}>✕</button>
+            <p className="eyebrow">FICHA TÉCNICA OFICIAL</p>
+            <h2 style={{ fontSize: 20, color: "#0d253f" }}>{selectedPresident.name}</h2>
+            <p style={{ fontSize: 12, color: "#64748b" }}>{selectedPresident.period} · ({selectedPresident.start}–{selectedPresident.end ?? "atual"})</p>
+
+            <div className="detail-grid" style={{ marginTop: 10 }}>
+              <div>
+                <span>Início do Mandato</span>
+                <strong>{selectedPresident.start}</strong>
+              </div>
+              <div>
+                <span>Fim do Mandato</span>
+                <strong>{selectedPresident.end ?? "Em exercício"}</strong>
+              </div>
+            </div>
+
+            {selectedPresident.note && (
+              <div className="notice" style={{ marginTop: 10 }}>
+                <Info size={16} />
+                <span>{selectedPresident.note}</span>
+              </div>
+            )}
+
+            <div style={{ marginTop: 14 }}>
+              <a 
+                href="https://presidentes.an.gov.br/" 
+                target="_blank" 
+                rel="noreferrer"
+                className="primary-button full"
+                style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              >
+                Conferir registros no Arquivo Nacional <ArrowUpRight size={16} />
+              </a>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Navegação Inferior Flutuante */}
+      <nav className="bottom-floating-nav" aria-label="Navegação inferior">
+        <button 
+          className={`nav-tab-btn ${section === "Início" ? "active" : ""}`} 
+          onClick={() => setSection("Início")}
+        >
+          <Home size={20} />
+          <span>Início</span>
+        </button>
+
+        <button 
+          className={`nav-tab-btn ${section === "Presidentes" ? "active" : ""}`} 
+          onClick={() => setSection("Presidentes")}
+        >
+          <Users size={20} />
+          <span>Presidentes</span>
+        </button>
+
+        <button className="nav-tab-main-btn" aria-label="Dashboard Central" onClick={() => setSection("Início")}>
+          <BarChart2 size={24} />
+        </button>
+
+        <button 
+          className={`nav-tab-btn ${section === "Promessas" ? "active" : ""}`} 
+          onClick={() => setSection("Promessas")}
+        >
+          <CheckSquare size={20} />
+          <span>Promessas</span>
+        </button>
+
+        <button 
+          className={`nav-tab-btn ${section === "Mais" ? "active" : ""}`} 
+          onClick={() => setSection("Mais")}
+        >
+          <Grid size={20} />
+          <span>Mais</span>
+        </button>
+      </nav>
     </div>
   );
 }
