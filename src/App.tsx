@@ -114,4 +114,39 @@ export default function App() {
         <button type="button" className={section==="Presidentes"?"active":""} onClick={()=>change("Presidentes")}><Users size={20}/><span>Presidentes</span></button>
         <button type="button" className="fab" onClick={()=>change("Mandato atual")}><BarChart3 size={22}/></button>
         <button type="button" className={section==="Promessas"?"active":""} onClick={()=>change("Promessas")}><ListChecks size={20}/><span>Promessas</span></button>
-        <button type
+        <button type="button" className={section==="Fontes e método"?"active":""} onClick={()=>change("Fontes e método")}><Grid3X3 size={20}/><span>Mais</span></button>
+      </nav>
+      {selected && (
+        <div className="backdrop" onClick={()=>setSelected(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            {(() => {
+              const info = getPresidentInfo(selected.id);
+              return (
+                <>
+                  <div style={{display:'flex',gap:12}}>
+                    <img src={info.foto} alt={selected.name} style={{width:64,height:64,borderRadius:12,objectFit:'cover'}} />
+                    <div><h2 style={{fontSize:18}}>{selected.name}</h2><p className="muted" style={{margin:0}}>{selected.period}</p><span style={{background:'#e8f5ee',color:'#16764e',padding:'4px 8px',borderRadius:20,fontSize:10,fontWeight:800}}>{info.cumpriu}% cumprido</span></div>
+                  </div>
+                  <p style={{fontSize:12,color:'#5a6d8a',marginTop:12,lineHeight:1.5}}>{info.bio}</p>
+                  <div style={{marginTop:16}}>
+                    <strong style={{fontSize:12}}>✅ O que fez:</strong>
+                    <ul style={{margin:'6px 0 0 18px',fontSize:12,lineHeight:1.6,color:'#334155'}}>{info.fez.map((f,i)=><li key={i}>{f}</li>)}</ul>
+                  </div>
+                  <div style={{marginTop:12}}>
+                    <strong style={{fontSize:12}}>📋 O que prometeu:</strong>
+                    <ul style={{margin:'6px 0 0 18px',fontSize:12,lineHeight:1.6,color:'#334155'}}>{info.prometeu.map((f,i)=><li key={i}>{f}</li>)}</ul>
+                  </div>
+                  <div style={{marginTop:16,background:'#f6f9ff',borderRadius:12,padding:12}}>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:11,fontWeight:700}}><span>Progresso</span><span>{info.cumpriu}%</span></div>
+                    <div style={{height:8,background:'#e6eefb',borderRadius:10,marginTop:6}}><div style={{width:`${info.cumpriu}%`,height:'100%',background:'#20c86a',borderRadius:10}}></div></div>
+                  </div>
+                  <button className="btn-primary full" type="button" onClick={()=>setSelected(null)} style={{marginTop:16}}>Fechar</button>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
