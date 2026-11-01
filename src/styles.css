@@ -65,3 +65,9 @@ body{background:#f5f9ff;font-family:'DM Sans',sans-serif;color:#132a4a}
 .modal-top{display:flex;gap:12px;align-items:center}
 .modal-photo{width:64px;height:64px;border-radius:14px;object-fit:cover}
 .muted{color:#6a7d94;font-size:13px}.badge{background:#e8f8ee;color:#16a34a;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px;display:inline-block}
+/* FIX FINAL DO SEU PRINT */
+.hero-bg{height:200px !important; opacity:.18 !important}
+.hero-bg img{opacity:.6 !important; filter:blur(1px)}
+.banner-premium .banner-text{right:120px !important; left:64px !important}
+.banner-premium h2{font-size:12px !important; line-height:1.2 !important}
+.banner-premium small{font-size:9px !important}
