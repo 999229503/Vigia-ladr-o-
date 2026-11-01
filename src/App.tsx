@@ -30,14 +30,11 @@ export default function App() {
     const dy = e.changedTouches[0].clientY - touchStart.current.y;
     touchStart.current = null;
 
-    // Se o movimento for predominantemente horizontal e longo o suficiente (>60px)
     if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.2) {
       const currentIndex = pages.indexOf(section);
       if (dx < 0) {
-        // Deslizou para a esquerda -> Próxima página
         navigateToIndex(currentIndex + 1);
       } else {
-        // Deslizou para a direita -> Página anterior
         navigateToIndex(currentIndex - 1);
       }
     }
@@ -85,7 +82,7 @@ export default function App() {
                 </div>
               </section>
 
-              {/* Card Promessas Cumpriadas (Ring + Stats) */}
+              {/* Card Promessas Cumpridas (Ring + Stats) */}
               <section className="dashboard-promises-card">
                 <div className="ring-container">
                   <div className="ring-inner">
@@ -215,7 +212,7 @@ export default function App() {
           )}
 
           {section !== "Início" && (
-            <div style={{ padding: "40px 0", textAlignment: "center" }}>
+            <div style={{ padding: "40px 0", textAlign: "center" }}>
               <h2>Página: {section}</h2>
               <p style={{ marginTop: 8, color: "#64748b" }}>
                 Deslize para o lado para retornar à página inicial.
