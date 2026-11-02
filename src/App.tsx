@@ -235,7 +235,7 @@ export default function App() {
               <button className="hero-brand" onClick={() => go("Início")} aria-label="Ir para o início">
                 <svg viewBox="0 0 100 100" width="26" height="26" aria-hidden="true">
                   <path d="M15 35 Q50 15 85 35 Q90 65 50 85 Q10 65 15 35 Z" fill="#00c853" />
-                  <circle cx="50" cy="50" r="20" fill="#ffffff" />
+                  <circle cx="50" cy="50" r="20" fill="#0047bb" />
                 </svg>
                 <span>Observa Brasil</span>
               </button>
