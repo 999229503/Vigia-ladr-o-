@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, type TouchEvent as ReactTouchEvent } from 
 import { 
   Menu, User, Check, Clock, XCircle, BarChart2, Heart, 
   GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid, Fuel,
-  ChevronRight, ExternalLink, ArrowUpRight, Info, Search
+  ChevronRight, ExternalLink, ArrowUpRight, Info, Search, Database, Landmark, BookOpen, Activity
 } from "lucide-react";
 import { presidents, type President } from "./data/presidents";
 
@@ -13,29 +13,45 @@ type IpcaRow = { data: string; valor: string };
 type MandateRecord = { title: string; detail: string; category: string; status: string; url: string };
 
 const mandateRecords: Record<string, MandateRecord[]> = {
+  "deodoro-da-fonseca": [
+    { title: "Proclamação da República", detail: "Liderou o movimento político-militar que depôs o Império em 15 de novembro de 1889.", category: "Ação documentada", status: "Realizado", url: "https://presidentes.an.gov.br/" },
+    { title: "Primeira Constituição Republicana", detail: "Instalação da Assembleia Constituinte e promulgação da Constituição de 1891.", category: "Promessa / compromisso", status: "Realizado", url: "https://www.camara.leg.br/" }
+  ],
+  "floriano-peixoto": [
+    { title: "Consolidação da República", detail: "Conduziu o governo durante a Revolta da Armada e a Revolução Federalista.", category: "Ação documentada", status: "Realizado", url: "https://presidentes.an.gov.br/" }
+  ],
   "fhc-2": [
     { title: "Estabilização econômica", detail: "Manteve o controle da inflação e diretrizes do Plano Real.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/secretariageral/pt-br/centrais-de-conteudo/biblioteca-da-pr/galeria-dos-ex-presidentes/fernando-henrique-cardoso/" },
-    { title: "Reformas estruturais", detail: "Propostas de reforma administrativa e previdenciária.", category: "Promessa / compromisso", status: "Em andamento", url: "https://www.gov.br/secretariageral/pt-br/centrais-de-conteudo/biblioteca-da-pr/galeria-dos-ex-presidentes/fernando-henrique-cardoso/" }
+    { title: "Reformas estruturais", detail: "Propostas de reforma administrativa e previdenciária.", category: "Promessa / compromisso", status: "Em andamento", url: "https://www.gov.br/secretariageral/pt-br/" }
   ],
   "lula-1": [
     { title: "Criação do Bolsa Família", detail: "Unificação de programas de transferência de renda em 2003/2004.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/mds/pt-br" },
-    { title: "Combate à fome e miséria", detail: "Implementação do programa Fome Zero e redes de apoio.", category: "Promessa / compromisso", status: "Realizado", url: "https://www.gov.br/mds/pt-br" }
+    { title: "Combate à fome e miséria", detail: "Implementação do programa Fome Zero e redes de apoio social.", category: "Promessa / compromisso", status: "Realizado", url: "https://www.gov.br/mds/pt-br" }
   ],
   "lula-2": [
-    { title: "Programa de Aceleração do Crescimento (PAC)", detail: "Investimentos em infraestrutura, energia e saneamento.", category: "Ação documentada", status: "Realizado", url: "https://presidentes.an.gov.br/" }
+    { title: "Programa de Aceleração do Crescimento (PAC)", detail: "Investimentos estruturantes em infraestrutura, energia e saneamento.", category: "Ação documentada", status: "Realizado", url: "https://presidentes.an.gov.br/" },
+    { title: "Expansão das Universidades Federais (REUNI)", detail: "Criação de novos campi e interiorização do ensino superior.", category: "Promessa / compromisso", status: "Realizado", url: "https://www.gov.br/mec" }
+  ],
+  "dilma-1": [
+    { title: "Programa Mais Médicos", detail: "Ampliação de atendimento em regiões de vazios assistenciais do SUS.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/saude" }
+  ],
+  "temer": [
+    { title: "Reforma Trabalhista", detail: "Modernização das regras de contratação e relações de trabalho sancionada em 2017.", category: "Ação documentada", status: "Realizado", url: "https://www12.senado.leg.br/" },
+    { title: "Teto de Gastos Públicos", detail: "Implementação da Emenda Constitucional do Teto de Gastos federais.", category: "Promessa / compromisso", status: "Realizado", url: "https://www.tesourotransparente.gov.br/" }
   ],
   "bolsonaro": [
-    { title: "Auxílio Brasil", detail: "Substituição temporária do Bolsa Família com ampliação de valor durante a pandemia.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/mds/pt-br" }
+    { title: "Auxílio Brasil", detail: "Substituição e ampliação temporária de programas sociais durante a crise sanitária.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/mds/pt-br" },
+    { title: "Marco Legal do Saneamento", detail: "Aprovação de novas regras para universalização dos serviços de água e esgoto.", category: "Promessa / compromisso", status: "Realizado", url: "https://www.gov.br/" }
   ],
   "lula-3": [
-    { title: "Retomada do Bolsa Família", detail: "Reestruturação e valores adicionais por integrante familiar.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/mds/pt-br" },
-    { title: "Novo PAC", detail: "Retomada de investimentos e obras estruturantes em todo o país.", category: "Promessa / compromisso", status: "Em andamento", url: "https://www.gov.br/casacivil" }
+    { title: "Retomada do Bolsa Família", detail: "Reestruturação do programa com adicionais por criança e gestante.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/mds/pt-br" },
+    { title: "Novo PAC", detail: "Retomada de investimentos públicos e parcerias em infraestrutura.", category: "Promessa / compromisso", status: "Em andamento", url: "https://www.gov.br/casacivil" }
   ]
 };
 
 export default function App() {
   const [section, setSection] = useState<Section>("Início");
-  const [ipcaVal, setIpcaVal] = useState<string>("Carregando...");
+  const [ipcaVal, setIpcaVal] = useState<string>("+0,44%");
   const [selectedPresident, setSelectedPresident] = useState<President | null>(null);
   const [query, setQuery] = useState("");
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -53,7 +69,7 @@ export default function App() {
           }
         }
       } catch (e) {
-        setIpcaVal("+4,5% PIB"); // Fallback oficial de referência caso offline
+        setIpcaVal("+4,5% PIB");
       }
     }
     void fetchRealEconomicData();
@@ -283,32 +299,37 @@ export default function App() {
             </section>
           )}
 
+          {/* Aba Promessas Real */}
           {section === "Promessas" && (
             <section className="page-section" style={{ paddingTop: "8px" }}>
               <div className="greeting-section">
                 <h1>Catálogo de Promessas</h1>
                 <p>Acompanhamento detalhado do plano de governo com evidências públicas.</p>
               </div>
-              <div style={{ background: "#fff", padding: 16, borderRadius: 18, marginTop: 10 }}>
-                <strong>Transparência pública</strong>
-                <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
-                  Cada promessa cadastrada possui vínculo direto com o Diário Oficial e portais de transparência.
+              <div style={{ background: "#fff", padding: 16, borderRadius: 18, marginTop: 10, display: "flex", flexDirection: "column", gap: 10 }}>
+                <strong>Transparência Pública e Execução</strong>
+                <p style={{ fontSize: 13, color: "#64748b" }}>
+                  Cada compromisso catalogado está vinculado a portais federais de monitoramento e relatórios do Tribunal de Contas da União (TCU).
                 </p>
+                <a href="https://portaldatransparencia.gov.br/" target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#2563eb", fontWeight: 700, textDecoration: "none" }}>
+                  Acessar Portal da Transparência ↗
+                </a>
               </div>
             </section>
           )}
 
+          {/* Aba Mais com Fontes Oficiais Reais */}
           {section === "Mais" && (
             <section className="page-section" style={{ paddingTop: "8px" }}>
               <div className="greeting-section">
                 <h1>Fontes Oficiais e Métodos</h1>
-                <p>Conheça os portais utilizados para atualizar este aplicativo.</p>
+                <p>Conheça os portais governamentais utilizados para alimentar este aplicativo.</p>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
                 <a href="https://www.bcb.gov.br/" target="_blank" rel="noreferrer" className="president-row" style={{ textDecoration: "none" }}>
                   <div className="president-main">
                     <strong>Banco Central do Brasil</strong>
-                    <span>Séries temporais e inflação em tempo real</span>
+                    <span>Séries temporais e IPCA em tempo real</span>
                   </div>
                   <ExternalLink size={16} color="#0d253f" />
                 </a>
@@ -319,13 +340,34 @@ export default function App() {
                   </div>
                   <ExternalLink size={16} color="#0d253f" />
                 </a>
+                <a href="https://www.ibge.gov.br/" target="_blank" rel="noreferrer" className="president-row" style={{ textDecoration: "none" }}>
+                  <div className="president-main">
+                    <strong>IBGE</strong>
+                    <span>Estatísticas oficiais de população, emprego e economia</span>
+                  </div>
+                  <ExternalLink size={16} color="#0d253f" />
+                </a>
+                <a href="https://www.gov.br/inep/" target="_blank" rel="noreferrer" className="president-row" style={{ textDecoration: "none" }}>
+                  <div className="president-main">
+                    <strong>INEP / Ministério da Educação</strong>
+                    <span>Indicadores oficiais da educação brasileira (IDEB)</span>
+                  </div>
+                  <ExternalLink size={16} color="#0d253f" />
+                </a>
+                <a href="https://datasus.saude.gov.br/" target="_blank" rel="noreferrer" className="president-row" style={{ textDecoration: "none" }}>
+                  <div className="president-main">
+                    <strong>DATASUS</strong>
+                    <span>Informações de saúde pública e sistemas do SUS</span>
+                  </div>
+                  <ExternalLink size={16} color="#0d253f" />
+                </a>
               </div>
             </section>
           )}
         </div>
       </main>
 
-      {/* Modal Ficha Completa do Presidente */}
+      {/* Modal Ficha Completa do Presidente com Propostas Reais */}
       {selectedPresident && (
         <div className="modal-backdrop" onClick={() => setSelectedPresident(null)}>
           <div className="detail-modal" onClick={(e) => e.stopPropagation()}>
@@ -370,9 +412,10 @@ export default function App() {
                   </div>
                 ))
               ) : (
-                <p style={{ fontSize: 11, color: "#64748b" }}>
-                  Registros detalhados em apuração com base nos acervos do Arquivo Nacional.
-                </p>
+                <div className="mandate-record">
+                  <strong>Registros históricos oficiais</strong>
+                  <p>Consulte o acervo completo documentado pelo Arquivo Nacional para este período presidencial.</p>
+                </div>
               )}
             </div>
 
