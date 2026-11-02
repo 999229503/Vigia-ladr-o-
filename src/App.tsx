@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, type TouchEvent as ReactTouchEvent } from 
 import { 
   Menu, User, Check, Clock, XCircle, BarChart2, Heart, 
   GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid, Fuel,
-  ChevronRight, ExternalLink, ArrowUpRight, Info, Search, Database, Landmark, BookOpen, Activity
+  ChevronRight, ExternalLink, ArrowUpRight, Info, Search
 } from "lucide-react";
 import { presidents, type President } from "./data/presidents";
 
@@ -56,7 +56,6 @@ export default function App() {
   const [query, setQuery] = useState("");
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  // Busca dados oficiais reais do Banco Central (SGS 433)
   useEffect(() => {
     async function fetchRealEconomicData() {
       try {
