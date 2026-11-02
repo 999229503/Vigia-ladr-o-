@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type TouchEvent as ReactTouchEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type TouchEvent as ReactTouchEvent } from "react";
 import {
   Menu, Check, Clock, HelpCircle, BarChart2, Heart, Coins,
   GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid, Fuel,
-  ChevronRight, ExternalLink, ArrowUpRight, Info, Search, RefreshCw
+  ChevronRight, ChevronDown, ExternalLink, ArrowUpRight, Info, Search, RefreshCw,
+  FileText, Flag, Percent, DollarSign, Briefcase, TrendingUp
 } from "lucide-react";
 import { presidents, type President } from "./data/presidents";
 import { mandateRecords, mandateStatuses, type MandateRecord, type MandateStatus } from "./data/mandates";
 import { socialCheckedAt, socialIndicators, type SocialIndicator } from "./data/indicators";
-import { describeSeries, otherSeries, useBcbIndicators } from "./bcb";
+import { describeSeries, seriesDefs, useBcbIndicators, type SeriesId } from "./bcb";
 
 type Section = "Início" | "Presidentes" | "Promessas" | "Mais";
 const pages: Section[] = ["Início", "Presidentes", "Promessas", "Mais"];
@@ -45,7 +46,7 @@ function ringBackground(counts: Record<MandateStatus, number>): string {
   if (total === 0) return "#e2e8f0";
   const a = (counts["Realizado"] / total) * 100;
   const b = a + (counts["Em andamento"] / total) * 100;
-  return `conic-gradient(#00c853 0% ${a}%, #ff9800 ${a}% ${b}%, #94a3b8 ${b}% 100%)`;
+  return `conic-gradient(#00a859 0% ${a}%, #ffc400 ${a}% ${b}%, #94a3b8 ${b}% 100%)`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -62,10 +63,49 @@ function isRecent(p: President): boolean {
   return p.end === null || p.end >= 2000;
 }
 
+type Group = { label: string; items: President[] };
+
+/** Agrupa a lista (já em ordem) em blocos consecutivos do mesmo período histórico. */
+function groupByPeriod(list: President[]): Group[] {
+  const groups: Group[] = [];
+  for (const p of list) {
+    const label = p.period === "Outro" ? "Transição" : p.period;
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) last.items.push(p);
+    else groups.push({ label, items: [p] });
+  }
+  return groups;
+}
+
+/** Nome do arquivo da foto: o mesmo presidente em mandatos diferentes reaproveita a foto (lula-1, lula-2, lula-3 → lula.jpg). */
+function photoFor(p: President): string {
+  return `/presidentes/${p.id.replace(/-\d$/, "")}.jpg`;
+}
+
+function initials(name: string): string {
+  return name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("");
+}
+
+const avatarTones = ["green", "blue", "yellow"] as const;
+
+function toneFor(id: string): (typeof avatarTones)[number] {
+  let sum = 0;
+  for (const ch of id) sum += ch.charCodeAt(0);
+  return avatarTones[sum % avatarTones.length];
+}
+
 const socialStyle: Record<SocialIndicator["id"], { tone: string; icon: JSX.Element }> = {
   saude: { tone: "pink", icon: <Heart size={20} /> },
   educacao: { tone: "blue", icon: <GraduationCap size={20} /> },
-  seguranca: { tone: "shield", icon: <ShieldCheck size={20} /> }
+  seguranca: { tone: "amber", icon: <ShieldCheck size={20} /> }
+};
+
+const econStyle: Record<SeriesId, { tone: string; icon: JSX.Element }> = {
+  ipca: { tone: "yellow", icon: <Coins size={20} /> },
+  ipca12: { tone: "sky", icon: <TrendingUp size={20} /> },
+  selic: { tone: "blue", icon: <Percent size={20} /> },
+  usd: { tone: "green", icon: <DollarSign size={20} /> },
+  desocupacao: { tone: "navy", icon: <Briefcase size={20} /> }
 };
 
 type Source = { name: string; description: string; url: string };
@@ -83,6 +123,34 @@ const sources: Source[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/* Peças de interface                                                  */
+/* ------------------------------------------------------------------ */
+
+/** Foto do presidente em círculo; se o arquivo não existir, mostra as iniciais. */
+function PresidentAvatar({ p, size }: { p: President; size: "sm" | "lg" }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <div className={`avatar ${size} ${toneFor(p.id)}`}>
+      {failed ? (
+        <span aria-hidden="true">{initials(p.name)}</span>
+      ) : (
+        <img src={photoFor(p)} alt="" loading="lazy" onError={() => setFailed(true)} />
+      )}
+    </div>
+  );
+}
+
+function PageHero({ tone, title, subtitle, children }: { tone: string; title: string; subtitle: string; children?: ReactNode }) {
+  return (
+    <section className={`page-hero ${tone}`}>
+      <h1>{title}</h1>
+      <p>{subtitle}</p>
+      {children}
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* App                                                                 */
 /* ------------------------------------------------------------------ */
 
@@ -94,7 +162,6 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState<MandateStatus | "Todos">("Todos");
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const { state: bcb, refreshing, reload } = useBcbIndicators();
-  const ipcaView = describeSeries("ipca", bcb.ipca);
 
   const go = useCallback((next: Section) => {
     setSection(next);
@@ -142,6 +209,11 @@ export default function App() {
     return showAllPresidents ? reversedPresidents : reversedPresidents.filter(isRecent);
   }, [query, showAllPresidents]);
 
+  const presidentGroups = useMemo<Group[]>(
+    () => (searching ? [{ label: "Resultados", items: visiblePresidents }] : groupByPeriod(visiblePresidents)),
+    [searching, visiblePresidents]
+  );
+
   const visibleRecords = useMemo(
     () => (statusFilter === "Todos" ? flatRecords : flatRecords.filter((r) => r.status === statusFilter)),
     [statusFilter]
@@ -151,40 +223,60 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {/* Cabeçalho */}
-      <header className="site-header">
-        <div className="site-header-inner">
-          <button className="header-icon-btn" aria-label="Fontes e métodos" onClick={() => go("Mais")}>
-            <Menu size={20} />
-          </button>
-
-          <button className="brand" onClick={() => go("Início")} aria-label="Ir para o início">
-            <div className="brand-mark">
-              <svg viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
-                <path d="M15 35 Q50 15 85 35 Q90 65 50 85 Q10 65 15 35 Z" fill="#00c853" />
-                <circle cx="50" cy="50" r="20" fill="#0047bb" />
-              </svg>
-            </div>
-            <div className="brand-copy">
-              <strong>Observa</strong>
-              <small>Brasil</small>
-            </div>
-          </button>
-
-          <span className="header-icon-btn header-spacer" aria-hidden="true" />
-        </div>
-      </header>
-
-      {/* Conteúdo (com swipe entre abas) */}
       <main className="main-area" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <div className="content">
+        {/* Topo de cada aba */}
+        {section === "Início" && (
+          <section className="home-hero">
+            <div className="hero-bar">
+              <button className="hero-icon-btn" aria-label="Fontes e métodos" onClick={() => go("Mais")}>
+                <Menu size={20} />
+              </button>
+
+              <button className="hero-brand" onClick={() => go("Início")} aria-label="Ir para o início">
+                <svg viewBox="0 0 100 100" width="26" height="26" aria-hidden="true">
+                  <path d="M15 35 Q50 15 85 35 Q90 65 50 85 Q10 65 15 35 Z" fill="#00c853" />
+                  <circle cx="50" cy="50" r="20" fill="#ffffff" />
+                </svg>
+                <span>Observa Brasil</span>
+              </button>
+
+              <span className="hero-icon-btn hero-spacer" aria-hidden="true" />
+            </div>
+
+            <div className="hero-copy">
+              <h1>Olá, Cidadão!</h1>
+              <p>Acompanhe o governo de forma simples.</p>
+            </div>
+          </section>
+        )}
+
+        {section === "Presidentes" && (
+          <PageHero tone="blue" title="Presidentes do Brasil" subtitle="Ficha técnica e registros de cada mandato.">
+            <label className="hero-search">
+              <Search size={18} aria-hidden="true" />
+              <input
+                type="search"
+                placeholder="Buscar por nome ou ano..."
+                aria-label="Buscar presidente por nome ou ano"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+          </PageHero>
+        )}
+
+        {section === "Promessas" && (
+          <PageHero tone="green" title="Promessas e ações" subtitle="Cada registro tem status e link para a fonte." />
+        )}
+
+        {section === "Mais" && (
+          <PageHero tone="navy" title="Fontes e métodos" subtitle="Portais oficiais usados ou indicados por este aplicativo." />
+        )}
+
+        {/* Conteúdo (com swipe entre abas) */}
+        <div key={section} className={`content ${section === "Início" ? "overlap" : ""}`}>
           {section === "Início" && (
             <>
-              <section className="greeting-section" style={{ paddingTop: "8px" }}>
-                <h1>Olá, Cidadão!</h1>
-                <p>Aqui você acompanha o governo de forma simples e visual.</p>
-              </section>
-
               {/* Registros catalogados: contagem real da base do app, não uma nota de governo */}
               <section className="dashboard-promises-card" aria-label="Registros catalogados por status">
                 <div className="ring-container" style={{ background: ringBackground(statusCounts) }}>
@@ -204,7 +296,7 @@ export default function App() {
                   </div>
 
                   <div className="stat-item">
-                    <div className="stat-icon-wrapper orange"><Clock size={16} strokeWidth={3} /></div>
+                    <div className="stat-icon-wrapper yellow"><Clock size={16} strokeWidth={3} /></div>
                     <div className="stat-info">
                       <strong>{statusCounts["Em andamento"]}</strong>
                       <span>Em andamento</span>
@@ -228,96 +320,90 @@ export default function App() {
                 </span>
               </button>
 
-              {/* Indicadores */}
-              <section className="indicators-grid" aria-label="Indicadores">
-                <div className="indicator-card-v3">
-                  <div className="indicator-head">
-                    <div className="indicator-icon-bg gold"><Coins size={20} /></div>
-                    <div className="indicator-title-group">
-                      <span>Economia · IPCA</span>
-                      <strong>{ipcaView.value}</strong>
-                      <small>{ipcaView.caption}</small>
-                    </div>
+              {/* Economia ao vivo (Banco Central) */}
+              <section aria-label="Economia ao vivo">
+                <div className="section-head">
+                  <div>
+                    <h2>Economia ao vivo</h2>
+                    <small>Banco Central do Brasil</small>
                   </div>
                   <button
-                    className="indicator-refresh"
+                    className="refresh-btn"
                     onClick={() => void reload()}
                     disabled={refreshing}
                     aria-label="Atualizar indicadores do Banco Central"
                   >
-                    <RefreshCw size={14} className={refreshing ? "spin" : undefined} />
+                    <RefreshCw size={15} className={refreshing ? "spin" : undefined} />
                   </button>
                 </div>
 
-                {socialIndicators.map((s) => (
-                  <a key={s.id} className="indicator-card-v3 indicator-link" href={s.url} target="_blank" rel="noreferrer">
-                    <div className="indicator-head">
-                      <div className={`indicator-icon-bg ${socialStyle[s.id].tone}`}>{socialStyle[s.id].icon}</div>
-                      <div className="indicator-title-group">
-                        <span>{s.name}</span>
-                        <strong>{s.headline}</strong>
-                        <small>{s.caption} ↗</small>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </section>
-
-              {/* Economia: demais séries do Banco Central */}
-              <section className="econ-card" aria-label="Economia - Banco Central">
-                <div className="fuel-card-title">
-                  <Coins size={18} color="#0d253f" />
-                  <span>Economia · Banco Central</span>
-                </div>
-                {otherSeries.map((def) => {
-                  const view = describeSeries(def.id, bcb[def.id]);
-                  return (
-                    <div key={def.id} className="econ-row">
-                      <div>
-                        <strong>{def.label}</strong>
+                <div className="econ-scroll">
+                  {seriesDefs.map((def) => {
+                    const view = describeSeries(def.id, bcb[def.id]);
+                    const style = econStyle[def.id];
+                    return (
+                      <article key={def.id} className={`econ-tile ${style.tone}`}>
+                        {style.icon}
+                        <span className="econ-label">{def.label}</span>
+                        <strong>{view.value}</strong>
                         <small>{view.caption}</small>
-                      </div>
-                      <span>{view.value}</span>
-                    </div>
-                  );
-                })}
-                <a className="text-link" href="https://www.bcb.gov.br/" target="_blank" rel="noreferrer">
+                      </article>
+                    );
+                  })}
+                </div>
+
+                <a className="text-link block-link" href="https://www.bcb.gov.br/" target="_blank" rel="noreferrer">
                   Ver séries no Banco Central ↗
                 </a>
               </section>
 
-              {/* Indicadores sociais: detalhes e fontes */}
-              <section className="econ-card" aria-label="Detalhes dos indicadores sociais">
-                <div className="fuel-card-title">
-                  <Info size={18} color="#0d253f" />
-                  <span>Saúde, educação e segurança</span>
-                </div>
-                {socialIndicators.map((s) => (
-                  <div key={s.id} className="social-detail">
-                    <strong>{s.name} · {s.title}</strong>
-                    {s.lines.map((line) => <p key={line}>{line}</p>)}
-                    <a className="text-link small" href={s.url} target="_blank" rel="noreferrer">
-                      Fonte: {s.source} ↗
-                    </a>
+              {/* Saúde, educação e segurança: toque para ver detalhes e fonte */}
+              <section aria-label="Saúde, educação e segurança">
+                <div className="section-head">
+                  <div>
+                    <h2>Saúde, educação e segurança</h2>
+                    <small>Toque para ver detalhes e fonte</small>
                   </div>
-                ))}
-                <p className="muted-text">
+                </div>
+
+                <div className="social-list">
+                  {socialIndicators.map((s) => (
+                    <details key={s.id} className="social-item">
+                      <summary>
+                        <div className={`social-icon ${socialStyle[s.id].tone}`}>{socialStyle[s.id].icon}</div>
+                        <div className="social-main">
+                          <strong>{s.name}</strong>
+                          <span>{s.caption}</span>
+                        </div>
+                        <span className="social-value">{s.headline}</span>
+                        <ChevronDown className="chev" size={18} aria-hidden="true" />
+                      </summary>
+                      <div className="social-body">
+                        <strong>{s.title}</strong>
+                        {s.lines.map((line) => <p key={line}>{line}</p>)}
+                        <a className="text-link small" href={s.url} target="_blank" rel="noreferrer">
+                          Fonte: {s.source} ↗
+                        </a>
+                      </div>
+                    </details>
+                  ))}
+                </div>
+
+                <p className="muted-text footnote">
                   Valores publicados por cada fonte e conferidos em {socialCheckedAt}. Não são atualizados automaticamente.
                 </p>
               </section>
 
               {/* Combustíveis: ainda sem integração com a ANP */}
-              <section className="fuel-card-container">
-                <div className="fuel-card-title">
-                  <Fuel size={18} color="#0d253f" />
-                  <span>Combustíveis - ANP</span>
+              <section className="soon-card">
+                <div className="soon-icon"><Fuel size={18} /></div>
+                <div className="soon-copy">
+                  <strong>Combustíveis · em breve</strong>
+                  <p>Os preços ainda não estão conectados à base da ANP, então o app não mostra valores.</p>
+                  <a className="text-link" href="https://www.gov.br/anp/pt-br" target="_blank" rel="noreferrer">
+                    Consultar na ANP ↗
+                  </a>
                 </div>
-                <p className="muted-text">
-                  Os preços ainda não estão conectados à base da ANP, então o app não mostra valores aqui.
-                </p>
-                <a className="text-link" href="https://www.gov.br/anp/pt-br" target="_blank" rel="noreferrer">
-                  Consultar preços na ANP ↗
-                </a>
               </section>
             </>
           )}
@@ -325,62 +411,61 @@ export default function App() {
           {/* Presidentes */}
           {section === "Presidentes" && (
             <section className="page-section">
-              <div className="greeting-section" style={{ paddingTop: "8px" }}>
-                <h1>Presidentes do Brasil</h1>
-                <p>Consulte a ficha técnica e os registros históricos de cada mandato.</p>
-              </div>
-
-              <div className="search-box">
-                <Search size={18} color="#64748b" />
-                <input
-                  type="search"
-                  placeholder="Buscar por nome ou ano..."
-                  aria-label="Buscar presidente por nome ou ano"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-              </div>
-
-              <div className="president-list">
-                {visiblePresidents.map((p) => {
-                  const n = mandateRecords[p.id]?.length ?? 0;
-                  return (
-                    <button key={p.id} className="president-row" onClick={() => setSelectedPresident(p)}>
-                      <div className="avatar">
-                        {p.name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("")}
-                      </div>
-                      <div className="president-main">
-                        <strong>{p.name}</strong>
-                        <span>
-                          {p.period} ({p.start}–{p.end ?? "atual"})
-                          {n > 0 ? ` · ${n} registro${n > 1 ? "s" : ""}` : ""}
-                        </span>
-                      </div>
-                      <ChevronRight size={18} color="#cbd5e1" />
-                    </button>
-                  );
-                })}
-                {visiblePresidents.length === 0 && (
-                  <p className="muted-text empty-state">Nenhum presidente encontrado para essa busca.</p>
-                )}
-              </div>
-
               {!searching && (
-                <button className="ghost-button" onClick={() => setShowAllPresidents((v) => !v)}>
-                  {showAllPresidents ? "Mostrar só de 2000 em diante" : "Ver histórico completo (desde 1889)"}
-                </button>
+                <div className="chip-row" role="group" aria-label="Período da lista">
+                  <button
+                    className={`chip ${!showAllPresidents ? "active" : ""}`}
+                    onClick={() => setShowAllPresidents(false)}
+                  >
+                    Desde 2000
+                  </button>
+                  <button
+                    className={`chip ${showAllPresidents ? "active" : ""}`}
+                    onClick={() => setShowAllPresidents(true)}
+                  >
+                    Desde 1889
+                  </button>
+                </div>
+              )}
+
+              {presidentGroups.map((group) => (
+                group.items.length > 0 && (
+                  <div key={group.label} className="president-group">
+                    <h2 className="group-title">{group.label}</h2>
+                    <div className="president-list">
+                      {group.items.map((p) => {
+                        const n = mandateRecords[p.id]?.length ?? 0;
+                        return (
+                          <button key={p.id} className="president-row" onClick={() => setSelectedPresident(p)}>
+                            <PresidentAvatar p={p} size="sm" />
+                            <div className="president-main">
+                              <strong>{p.name}</strong>
+                              <span>
+                                {p.start}–{p.end ?? "atual"}
+                                {searching ? ` · ${p.period}` : ""}
+                              </span>
+                              <em className={`count-pill ${n > 0 ? "has" : ""}`}>
+                                {n > 0 ? `${n} registro${n > 1 ? "s" : ""}` : "sem registros"}
+                              </em>
+                            </div>
+                            <ChevronRight size={18} color="#cbd5e1" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )
+              ))}
+
+              {visiblePresidents.length === 0 && (
+                <p className="muted-text empty-state">Nenhum presidente encontrado para essa busca.</p>
               )}
             </section>
           )}
 
           {/* Promessas */}
           {section === "Promessas" && (
-            <section className="page-section" style={{ paddingTop: "8px" }}>
-              <div className="greeting-section">
-                <h1>Promessas e ações</h1>
-                <p>Registros de mandato com status e link para a fonte.</p>
-              </div>
-
+            <section className="page-section">
               <div className="notice">
                 <Info size={16} />
                 <span>
@@ -409,12 +494,18 @@ export default function App() {
 
               <div className="record-list">
                 {visibleRecords.map((r) => (
-                  <article key={`${r.presidentName}-${r.title}`} className="record-card">
+                  <article key={`${r.presidentName}-${r.title}`} className={`record-card ${statusClass(r.status)}`}>
                     <div className="record-top">
                       <strong>{r.title}</strong>
                       <span className={`status-pill ${statusClass(r.status)}`}>{r.status}</span>
                     </div>
-                    <small className="record-meta">{r.presidentName} · {r.years} · {r.category}</small>
+                    <small className="record-meta">
+                      <span className="meta-cat">
+                        {r.category === "Ação documentada" ? <FileText size={13} /> : <Flag size={13} />}
+                        {r.category}
+                      </span>
+                      <span>{r.presidentName} · {r.years}</span>
+                    </small>
                     <p>{r.detail}</p>
                     <a className="text-link" href={r.url} target="_blank" rel="noreferrer">Ver fonte ↗</a>
                   </article>
@@ -428,7 +519,7 @@ export default function App() {
                 href="https://portaldatransparencia.gov.br/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-link"
+                className="text-link block-link"
               >
                 Acessar o Portal da Transparência ↗
               </a>
@@ -437,12 +528,7 @@ export default function App() {
 
           {/* Mais: fontes oficiais */}
           {section === "Mais" && (
-            <section className="page-section" style={{ paddingTop: "8px" }}>
-              <div className="greeting-section">
-                <h1>Fontes oficiais e métodos</h1>
-                <p>Portais governamentais usados ou indicados por este aplicativo.</p>
-              </div>
-
+            <section className="page-section">
               <div className="notice">
                 <Info size={16} />
                 <span>
@@ -467,7 +553,7 @@ export default function App() {
         </div>
       </main>
 
-      {/* Ficha do presidente */}
+      {/* Ficha do presidente (abre de baixo para cima) */}
       {selectedPresident && (
         <div className="modal-backdrop" onClick={() => setSelectedPresident(null)}>
           <div
@@ -477,12 +563,19 @@ export default function App() {
             aria-label={`Ficha de ${selectedPresident.name}`}
             onClick={(e) => e.stopPropagation()}
           >
+            <span className="sheet-handle" aria-hidden="true" />
             <button className="modal-close" aria-label="Fechar" onClick={() => setSelectedPresident(null)}>✕</button>
-            <p className="eyebrow">FICHA TÉCNICA E REGISTROS</p>
-            <h2 style={{ fontSize: 20, color: "#0d253f" }}>{selectedPresident.name}</h2>
-            <p style={{ fontSize: 12, color: "#64748b" }}>
-              {selectedPresident.period} · ({selectedPresident.start}–{selectedPresident.end ?? "atual"})
-            </p>
+
+            <div className="sheet-head">
+              <PresidentAvatar p={selectedPresident} size="lg" />
+              <div>
+                <p className="eyebrow">FICHA TÉCNICA E REGISTROS</p>
+                <h2>{selectedPresident.name}</h2>
+                <p className="sheet-sub">
+                  {selectedPresident.period} · ({selectedPresident.start}–{selectedPresident.end ?? "atual"})
+                </p>
+              </div>
+            </div>
 
             <div className="detail-grid">
               <div>
@@ -506,7 +599,7 @@ export default function App() {
               <h3>Ações e propostas registradas</h3>
               {mandateRecords[selectedPresident.id]?.length ? (
                 mandateRecords[selectedPresident.id].map((rec) => (
-                  <div key={rec.title} className="mandate-record">
+                  <div key={rec.title} className={`mandate-record ${statusClass(rec.status)}`}>
                     <div className="record-top">
                       <strong>{rec.title}</strong>
                       <span className={`status-pill ${statusClass(rec.status)}`}>{rec.status}</span>

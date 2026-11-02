@@ -19,10 +19,16 @@ npm run preview
 - **Início:** contagem de registros catalogados por status (realizado, em andamento, a validar), indicadores econômicos ao vivo e os últimos valores publicados de saúde, educação e segurança, cada um com data e link para a fonte.
 - **Economia ao vivo (Banco Central, SGS):** IPCA mensal (série 433), IPCA em 12 meses (13522), meta Selic (432), dólar de venda (1) e taxa de desocupação da PNAD (24369), consultados direto na API pública. Cada valor mostra a data de referência, tem estados de carregamento e erro, cache local de 24 horas e um botão para forçar a atualização. Sem conexão, o app mostra o último valor guardado e avisa.
 - **Saúde, educação e segurança:** mortalidade de menores de 5 anos (Unicef, 2024), IDEB 2025 (MEC/Inep) e mortes violentas intencionais de 2025 (Anuário Brasileiro de Segurança Pública). São valores publicados pelas fontes, guardados em `src/data/indicators.ts` com data de conferência e link; não se atualizam sozinhos.
-- **Presidentes:** lista em ordem do mais recente para o mais antigo, mostrando primeiro de 2000 em diante, com botão para o histórico completo desde 1889. A busca ignora acentos e procura por nome, período ou ano. A ficha de cada mandato abre em modal.
+- **Presidentes:** lista em ordem do mais recente para o mais antigo, agrupada por período histórico, mostrando primeiro de 2000 em diante, com seletor para o histórico completo desde 1889. A busca ignora acentos e procura por nome, período ou ano. A ficha de cada mandato abre de baixo para cima, com a foto em destaque.
 - **Promessas:** lista dos registros de mandato com status, categoria e link para a fonte, com filtro por status.
 - **Mais:** catálogo de fontes oficiais (Banco Central, Arquivo Nacional, Biblioteca da Presidência, Portal da Transparência, IBGE/SIDRA, DATASUS, INEP, Atlas da Violência/Ipea e ANP).
 - Manifesto PWA, ícone e cache básico de recursos do mesmo domínio para facilitar instalação e retorno offline.
+
+## Fotos dos presidentes
+
+O app procura a foto de cada presidente em `public/presidentes/` e, se o arquivo não existir, mostra as iniciais. O nome do arquivo é o `id` do mandato em `src/data/presidents.ts`, em `.jpg`. Mandatos do mesmo presidente reaproveitam a mesma foto: `lula-1`, `lula-2` e `lula-3` usam `lula.jpg`; `fhc-1` e `fhc-2` usam `fhc.jpg`; `getulio-vargas` e `getulio-vargas-2` usam `getulio-vargas.jpg`. Exemplos: `bolsonaro.jpg`, `temer.jpg`, `dilma.jpg`.
+
+Use fotos de fontes oficiais ou livres (Biblioteca da Presidência, Arquivo Nacional, Wikimedia Commons), confira a licença de cada imagem e registre o crédito. Fotos quadradas ou retratos com o rosto centralizado ficam melhor no círculo.
 
 ## Como ler os números
 
@@ -45,7 +51,7 @@ npm run preview
 - `src/data/indicators.ts`: valores publicados de saúde, educação e segurança, com fonte e data.
 - `src/data/presidents.ts`: lista de mandatos presidenciais.
 - `src/data/mandates.ts`: registros de ações e promessas, indexados pelo `id` do mandato.
-- `public/`: manifesto PWA, service worker e ícones.
+- `public/`: manifesto PWA, service worker, ícones, imagem de capa (`brasilia-congresso-capa.jpg`) e `presidentes/` (fotos).
 
 ## Fontes principais
 
