@@ -245,7 +245,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  height: 115px;
+  min-height: 115px;
   justify-content: flex-start;
 }
 
@@ -796,4 +796,68 @@ a.president-row,
 
 .link-button {
   text-decoration: none;
+}
+
+/* Indicadores do Banco Central e dados sociais */
+.econ-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(13, 37, 63, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.econ-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.econ-row strong {
+  display: block;
+  font-size: 13px;
+  color: #0d253f;
+}
+
+.econ-row small {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.econ-row > span {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0d253f;
+  white-space: nowrap;
+}
+
+.social-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.social-detail strong {
+  font-size: 13px;
+  color: #0d253f;
+}
+
+.social-detail p {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.4;
 }

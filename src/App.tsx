@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { presidents, type President } from "./data/presidents";
 import { mandateRecords, mandateStatuses, type MandateRecord, type MandateStatus } from "./data/mandates";
+import { socialCheckedAt, socialIndicators, type SocialIndicator } from "./data/indicators";
+import { describeSeries, otherSeries, useBcbIndicators } from "./bcb";
 
 type Section = "Início" | "Presidentes" | "Promessas" | "Mais";
 const pages: Section[] = ["Início", "Presidentes", "Promessas", "Mais"];
@@ -47,98 +49,6 @@ function ringBackground(counts: Record<MandateStatus, number>): string {
 }
 
 /* ------------------------------------------------------------------ */
-/* IPCA (Banco Central, SGS 433) com cache local de 24 horas           */
-/* ------------------------------------------------------------------ */
-
-type IpcaRow = { data: string; valor: string };
-type IpcaData = { valor: number; referencia: string; fetchedAt: number };
-type IpcaState =
-  | { status: "loading" }
-  | { status: "ok"; data: IpcaData; stale: boolean }
-  | { status: "error" };
-
-const IPCA_URL = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados/ultimos/1?formato=json";
-const IPCA_CACHE_KEY = "observabrasil:ipca:v1";
-const IPCA_TTL_MS = 24 * 60 * 60 * 1000;
-
-function readIpcaCache(): IpcaData | null {
-  try {
-    const raw = localStorage.getItem(IPCA_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<IpcaData>;
-    if (
-      typeof parsed.valor !== "number" ||
-      typeof parsed.referencia !== "string" ||
-      typeof parsed.fetchedAt !== "number"
-    ) return null;
-    return { valor: parsed.valor, referencia: parsed.referencia, fetchedAt: parsed.fetchedAt };
-  } catch {
-    return null;
-  }
-}
-
-function writeIpcaCache(data: IpcaData) {
-  try {
-    localStorage.setItem(IPCA_CACHE_KEY, JSON.stringify(data));
-  } catch {
-    /* armazenamento indisponível: o app funciona sem cache */
-  }
-}
-
-function isFresh(data: IpcaData | null): data is IpcaData {
-  return data !== null && Date.now() - data.fetchedAt < IPCA_TTL_MS;
-}
-
-function formatIpca(valor: number): string {
-  const text = valor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `${valor > 0 ? "+" : ""}${text}%`;
-}
-
-function useIpca() {
-  const [state, setState] = useState<IpcaState>(() => {
-    const cached = readIpcaCache();
-    return isFresh(cached) ? { status: "ok", data: cached, stale: false } : { status: "loading" };
-  });
-  const [refreshing, setRefreshing] = useState(false);
-
-  const load = useCallback(async (force: boolean) => {
-    const cached = readIpcaCache();
-    if (!force && isFresh(cached)) {
-      setState({ status: "ok", data: cached, stale: false });
-      return;
-    }
-    setRefreshing(true);
-    try {
-      const res = await fetch(IPCA_URL);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const rows = (await res.json()) as IpcaRow[];
-      const row = rows[0];
-      const valor = Number(row?.valor);
-      if (!row || !Number.isFinite(valor)) throw new Error("Resposta inválida");
-      const [, mes, ano] = row.data.split("/");
-      const data: IpcaData = {
-        valor,
-        referencia: mes && ano ? `${mes}/${ano}` : row.data,
-        fetchedAt: Date.now()
-      };
-      writeIpcaCache(data);
-      setState({ status: "ok", data, stale: false });
-    } catch {
-      setState(cached ? { status: "ok", data: cached, stale: true } : { status: "error" });
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load(false);
-  }, [load]);
-
-  const reload = useCallback(() => load(true), [load]);
-  return { state, refreshing, reload };
-}
-
-/* ------------------------------------------------------------------ */
 /* Utilidades                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -152,10 +62,16 @@ function isRecent(p: President): boolean {
   return p.end === null || p.end >= 2000;
 }
 
+const socialStyle: Record<SocialIndicator["id"], { tone: string; icon: JSX.Element }> = {
+  saude: { tone: "pink", icon: <Heart size={20} /> },
+  educacao: { tone: "blue", icon: <GraduationCap size={20} /> },
+  seguranca: { tone: "shield", icon: <ShieldCheck size={20} /> }
+};
+
 type Source = { name: string; description: string; url: string };
 
 const sources: Source[] = [
-  { name: "Banco Central do Brasil", description: "IPCA mensal (SGS série 433), consultado direto na API pública", url: "https://www.bcb.gov.br/" },
+  { name: "Banco Central do Brasil", description: "IPCA, Selic, dólar e desemprego (séries SGS), consultados direto na API pública", url: "https://www.bcb.gov.br/" },
   { name: "Arquivo Nacional", description: "Biografias e mandatos presidenciais", url: "https://presidentes.an.gov.br/" },
   { name: "Biblioteca da Presidência", description: "Galeria de ex-presidentes", url: "https://www.biblioteca.presidencia.gov.br/presidencia/ex-presidentes" },
   { name: "Portal da Transparência", description: "Gastos e execução orçamentária do governo federal", url: "https://portaldatransparencia.gov.br/" },
@@ -177,7 +93,8 @@ export default function App() {
   const [showAllPresidents, setShowAllPresidents] = useState(false);
   const [statusFilter, setStatusFilter] = useState<MandateStatus | "Todos">("Todos");
   const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const { state: ipca, refreshing, reload } = useIpca();
+  const { state: bcb, refreshing, reload } = useBcbIndicators();
+  const ipcaView = describeSeries("ipca", bcb.ipca);
 
   const go = useCallback((next: Section) => {
     setSection(next);
@@ -318,59 +235,75 @@ export default function App() {
                     <div className="indicator-icon-bg gold"><Coins size={20} /></div>
                     <div className="indicator-title-group">
                       <span>Economia · IPCA</span>
-                      {ipca.status === "loading" && <strong>Carregando…</strong>}
-                      {ipca.status === "error" && <strong>Indisponível</strong>}
-                      {ipca.status === "ok" && <strong>{formatIpca(ipca.data.valor)}</strong>}
-                      <small>
-                        {ipca.status === "ok" && !ipca.stale && `Ref. ${ipca.data.referencia} · Banco Central`}
-                        {ipca.status === "ok" && ipca.stale && `Ref. ${ipca.data.referencia} · sem conexão`}
-                        {ipca.status === "error" && "Sem conexão com o BCB"}
-                        {ipca.status === "loading" && "Banco Central"}
-                      </small>
+                      <strong>{ipcaView.value}</strong>
+                      <small>{ipcaView.caption}</small>
                     </div>
                   </div>
                   <button
                     className="indicator-refresh"
                     onClick={() => void reload()}
                     disabled={refreshing}
-                    aria-label="Atualizar IPCA"
+                    aria-label="Atualizar indicadores do Banco Central"
                   >
                     <RefreshCw size={14} className={refreshing ? "spin" : undefined} />
                   </button>
                 </div>
 
-                <a className="indicator-card-v3 indicator-link" href="https://datasus.saude.gov.br/" target="_blank" rel="noreferrer">
-                  <div className="indicator-head">
-                    <div className="indicator-icon-bg pink"><Heart size={20} /></div>
-                    <div className="indicator-title-group">
-                      <span>Saúde</span>
-                      <strong>A validar</strong>
-                      <small>Ver DATASUS ↗</small>
+                {socialIndicators.map((s) => (
+                  <a key={s.id} className="indicator-card-v3 indicator-link" href={s.url} target="_blank" rel="noreferrer">
+                    <div className="indicator-head">
+                      <div className={`indicator-icon-bg ${socialStyle[s.id].tone}`}>{socialStyle[s.id].icon}</div>
+                      <div className="indicator-title-group">
+                        <span>{s.name}</span>
+                        <strong>{s.headline}</strong>
+                        <small>{s.caption} ↗</small>
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                ))}
+              </section>
 
-                <a className="indicator-card-v3 indicator-link" href="https://www.gov.br/inep/pt-br" target="_blank" rel="noreferrer">
-                  <div className="indicator-head">
-                    <div className="indicator-icon-bg blue"><GraduationCap size={20} /></div>
-                    <div className="indicator-title-group">
-                      <span>Educação</span>
-                      <strong>A validar</strong>
-                      <small>Ver INEP ↗</small>
+              {/* Economia: demais séries do Banco Central */}
+              <section className="econ-card" aria-label="Economia - Banco Central">
+                <div className="fuel-card-title">
+                  <Coins size={18} color="#0d253f" />
+                  <span>Economia · Banco Central</span>
+                </div>
+                {otherSeries.map((def) => {
+                  const view = describeSeries(def.id, bcb[def.id]);
+                  return (
+                    <div key={def.id} className="econ-row">
+                      <div>
+                        <strong>{def.label}</strong>
+                        <small>{view.caption}</small>
+                      </div>
+                      <span>{view.value}</span>
                     </div>
-                  </div>
+                  );
+                })}
+                <a className="text-link" href="https://www.bcb.gov.br/" target="_blank" rel="noreferrer">
+                  Ver séries no Banco Central ↗
                 </a>
+              </section>
 
-                <a className="indicator-card-v3 indicator-link" href="https://www.ipea.gov.br/atlasviolencia/" target="_blank" rel="noreferrer">
-                  <div className="indicator-head">
-                    <div className="indicator-icon-bg shield"><ShieldCheck size={20} /></div>
-                    <div className="indicator-title-group">
-                      <span>Segurança</span>
-                      <strong>A validar</strong>
-                      <small>Ver Atlas da Violência ↗</small>
-                    </div>
+              {/* Indicadores sociais: detalhes e fontes */}
+              <section className="econ-card" aria-label="Detalhes dos indicadores sociais">
+                <div className="fuel-card-title">
+                  <Info size={18} color="#0d253f" />
+                  <span>Saúde, educação e segurança</span>
+                </div>
+                {socialIndicators.map((s) => (
+                  <div key={s.id} className="social-detail">
+                    <strong>{s.name} · {s.title}</strong>
+                    {s.lines.map((line) => <p key={line}>{line}</p>)}
+                    <a className="text-link small" href={s.url} target="_blank" rel="noreferrer">
+                      Fonte: {s.source} ↗
+                    </a>
                   </div>
-                </a>
+                ))}
+                <p className="muted-text">
+                  Valores publicados por cada fonte e conferidos em {socialCheckedAt}. Não são atualizados automaticamente.
+                </p>
               </section>
 
               {/* Combustíveis: ainda sem integração com a ANP */}
@@ -513,7 +446,7 @@ export default function App() {
               <div className="notice">
                 <Info size={16} />
                 <span>
-                  Hoje só o IPCA vem de uma API ao vivo. Os demais indicadores aparecem como “A validar” até serem conectados à fonte.
+                  Economia (IPCA, Selic, dólar e desemprego) vem ao vivo do Banco Central. Saúde, educação e segurança são os últimos valores publicados pelas fontes, com data e link. Combustíveis ainda não estão conectados.
                   A lista de presidentes é uma base inicial e deve ser conferida no Arquivo Nacional e na Biblioteca da Presidência.
                 </span>
               </div>
