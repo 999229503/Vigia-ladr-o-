@@ -17,13 +17,15 @@ const pages: Section[] = ["Início", "Presidentes", "Promessas", "Mais"];
 /* Registros de mandato (derivados de data/mandates.ts)                */
 /* ------------------------------------------------------------------ */
 
-type FlatRecord = MandateRecord & { presidentName: string; years: string };
+type FlatRecord = MandateRecord & { presidentId: string; presidentName: string; years: string; current: boolean };
 
 const flatRecords: FlatRecord[] = presidents.flatMap((p) =>
   (mandateRecords[p.id] ?? []).map((r) => ({
     ...r,
-    presidentName: p.name,
-    years: `${p.start}–${p.end ?? "atual"}`
+    presidentId: p.id,
+    presidentName: p.name.split(" — ")[0],
+    years: `${p.start}–${p.end ?? "atual"}`,
+    current: p.end === null
   }))
 );
 
@@ -140,6 +142,26 @@ function PresidentAvatar({ p, size }: { p: President; size: "sm" | "lg" }) {
   );
 }
 
+function RecordCard({ r }: { r: FlatRecord }) {
+  return (
+    <article className={`record-card ${statusClass(r.status)}`}>
+      <div className="record-top">
+        <strong>{r.title}</strong>
+        <span className={`status-pill ${statusClass(r.status)}`}>{r.status}</span>
+      </div>
+      <small className="record-meta">
+        <span className="meta-cat">
+          {r.category === "Ação documentada" ? <FileText size={13} /> : <Flag size={13} />}
+          {r.category}
+        </span>
+        <span>{r.presidentName} · {r.years}</span>
+      </small>
+      <p>{r.detail}</p>
+      <a className="text-link" href={r.url} target="_blank" rel="noreferrer">Ver fonte ↗</a>
+    </article>
+  );
+}
+
 function PageHero({ tone, title, subtitle, children }: { tone: string; title: string; subtitle: string; children?: ReactNode }) {
   return (
     <section className={`page-hero ${tone}`}>
@@ -178,6 +200,11 @@ export default function App() {
   }, [selectedPresident]);
 
   function handleTouchStart(e: ReactTouchEvent<HTMLElement>) {
+    // Áreas com rolagem horizontal própria (ex.: economia ao vivo) não trocam de aba.
+    if ((e.target as Element).closest("[data-no-swipe]")) {
+      touchStart.current = null;
+      return;
+    }
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
   }
@@ -219,6 +246,9 @@ export default function App() {
     [statusFilter]
   );
 
+  const currentRecords = visibleRecords.filter((r) => r.current);
+  const pastRecords = visibleRecords.filter((r) => !r.current);
+  const currentMandate = presidents.find((p) => p.end === null);
   const totalRecords = flatRecords.length;
 
   return (
@@ -337,7 +367,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="econ-scroll">
+                <div className="econ-scroll" data-no-swipe>
                   {seriesDefs.map((def) => {
                     const view = describeSeries(def.id, bcb[def.id]);
                     const style = econStyle[def.id];
@@ -469,7 +499,7 @@ export default function App() {
               <div className="notice">
                 <Info size={16} />
                 <span>
-                  Amostra inicial de {totalRecords} registros em {new Set(flatRecords.map((r) => r.presidentName)).size} mandatos.
+                  Amostra inicial de {totalRecords} registros em {new Set(flatRecords.map((r) => r.presidentId)).size} mandatos.
                   O status descreve cada item, não avalia o presidente. “A validar” indica que falta confirmar em fonte oficial.
                 </span>
               </div>
@@ -492,27 +522,31 @@ export default function App() {
                 ))}
               </div>
 
-              <div className="record-list">
-                {visibleRecords.map((r) => (
-                  <article key={`${r.presidentName}-${r.title}`} className={`record-card ${statusClass(r.status)}`}>
-                    <div className="record-top">
-                      <strong>{r.title}</strong>
-                      <span className={`status-pill ${statusClass(r.status)}`}>{r.status}</span>
-                    </div>
-                    <small className="record-meta">
-                      <span className="meta-cat">
-                        {r.category === "Ação documentada" ? <FileText size={13} /> : <Flag size={13} />}
-                        {r.category}
-                      </span>
-                      <span>{r.presidentName} · {r.years}</span>
-                    </small>
-                    <p>{r.detail}</p>
-                    <a className="text-link" href={r.url} target="_blank" rel="noreferrer">Ver fonte ↗</a>
-                  </article>
-                ))}
-                {visibleRecords.length === 0 && (
-                  <p className="muted-text empty-state">Nenhum registro com esse status.</p>
-                )}
+              {/* Mandato em exercício, separado do histórico */}
+              {currentMandate && (
+                <section className="current-block" aria-label="Promessas do mandato atual">
+                  <div className="current-head">
+                    <span className="current-badge">Mandato atual</span>
+                    <strong>{currentMandate.name.split(" — ")[0]}</strong>
+                    <small>Em exercício desde {currentMandate.start}</small>
+                  </div>
+                  <div className="record-list">
+                    {currentRecords.map((r) => <RecordCard key={`${r.presidentId}-${r.title}`} r={r} />)}
+                    {currentRecords.length === 0 && (
+                      <p className="muted-text empty-state">Nenhum registro do mandato atual com esse status.</p>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              <div className="president-group">
+                <h2 className="group-title">Mandatos anteriores</h2>
+                <div className="record-list">
+                  {pastRecords.map((r) => <RecordCard key={`${r.presidentId}-${r.title}`} r={r} />)}
+                  {pastRecords.length === 0 && (
+                    <p className="muted-text empty-state">Nenhum registro com esse status.</p>
+                  )}
+                </div>
               </div>
 
               <a
