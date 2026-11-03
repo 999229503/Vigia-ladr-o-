@@ -22,6 +22,7 @@ npm run preview
 - **Presidentes:** lista em ordem do mais recente para o mais antigo, agrupada por período histórico, mostrando primeiro de 2000 em diante, com seletor para o histórico completo desde 1889. A busca ignora acentos e procura por nome, período ou ano. A ficha de cada mandato abre de baixo para cima, com a foto em destaque.
 - **Promessas:** lista dos registros de mandato com status, categoria e link para a fonte, com filtro por status.
 - **Fontes das promessas:** a aba Mais lista cada fonte usada nos registros do mandato atual, marcada como Oficial (lei, promulgação, relatório) ou Imprensa (balanços que classificam cada promessa como cumprida ou não). A classificação é uma avaliação, não um placar oficial.
+- **Combustíveis (ANP):** preço médio nacional de gasolina comum, etanol e diesel S10 na semana mais recente, com a variação em relação a 12 meses atrás e o preço de 12 meses atrás em vermelho. Os valores vêm da Síntese Semanal da ANP, ficam em `src/data/fuels.ts` com a data de cada semana e não se atualizam sozinhos.
 - **Mais:** catálogo de fontes oficiais (Banco Central, Arquivo Nacional, Biblioteca da Presidência, Portal da Transparência, IBGE/SIDRA, DATASUS, INEP, Atlas da Violência/Ipea e ANP).
 - Manifesto PWA, ícone e cache básico de recursos do mesmo domínio para facilitar instalação e retorno offline.
 
@@ -40,7 +41,7 @@ Use fotos de fontes oficiais ou livres (Biblioteca da Presidência, Arquivo Naci
 ## Limites que precisam ficar claros
 
 - A lista presidencial (`src/data/presidents.ts`) é uma base histórica inicial organizada por períodos/anos; não substitui uma revisão documental individual de datas exatas, interinidades, juntas e fases de governo. Consulte a Biblioteca da Presidência e o Arquivo Nacional antes de publicar análises definitivas.
-- Só os indicadores econômicos do Banco Central são atualizados automaticamente. Saúde, educação e segurança precisam ser revisados à mão quando saírem novas edições (IDEB, Anuário, Unicef). Gastos públicos e preços de combustíveis (ANP) ainda não estão conectados, e não há comparação histórica automática.
+- Só os indicadores econômicos do Banco Central são atualizados automaticamente. Saúde, educação e segurança precisam ser revisados à mão quando saírem novas edições (IDEB, Anuário, Unicef). Gastos públicos ainda não estão conectados, e os preços de combustíveis (ANP) são guardados à mão, e não há comparação histórica automática.
 - Ainda não há banco de dados, painel editorial, histórico de correções, avaliação automática de promessas nem integração de IA. Essas funcionalidades exigem projeto adicional e, para IA, uma camada segura no servidor e controle de custos.
 - O cache PWA é básico e não garante que todos os dados dinâmicos estejam disponíveis offline. Os indicadores do Banco Central precisam de internet para atualizar.
 - A instalação como PWA não é a mesma coisa que publicação na Play Store. Para Play Store será necessário empacotar e testar a aplicação Android (por exemplo, Trusted Web Activity ou Capacitor), preparar os ativos exigidos e cumprir as políticas do Google Play.
@@ -50,6 +51,7 @@ Use fotos de fontes oficiais ou livres (Biblioteca da Presidência, Arquivo Naci
 - `src/App.tsx`: telas e navegação.
 - `src/bcb.ts`: séries do Banco Central, cache de 24h e estados de carregamento/erro.
 - `src/data/indicators.ts`: valores publicados de saúde, educação e segurança, com fonte e data.
+- `src/data/fuels.ts`: preços de combustíveis da síntese semanal da ANP, com datas e fontes.
 - `src/data/presidents.ts`: lista de mandatos presidenciais.
 - `src/data/mandates.ts`: registros de ações e promessas, indexados pelo `id` do mandato.
 - `public/`: manifesto PWA, service worker, ícones, imagem de capa (`brasilia-congresso-capa.jpg`) e `presidentes/` (fotos).

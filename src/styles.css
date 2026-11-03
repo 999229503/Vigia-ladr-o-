@@ -529,45 +529,73 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/* Combustíveis (em breve)                                             */
+/* Combustíveis                                                        */
 /* ------------------------------------------------------------------ */
 
-.soon-card {
-  display: flex;
-  gap: 12px;
-  padding: 14px;
-  border: 1.5px dashed #cbd5e1;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.6);
-}
-
-.soon-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: #fff1c2;
-  color: #5c4300;
+.fuel-grid {
   display: grid;
-  place-items: center;
-  flex-shrink: 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
-.soon-copy {
+.fuel-tile {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  box-shadow: 0 4px 15px rgba(13, 37, 63, 0.04);
 }
 
-.soon-copy strong {
-  font-size: 13px;
+.fuel-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.fuel-tile strong {
+  font-size: 18px;
   font-weight: 800;
   color: var(--navy);
+  line-height: 1.1;
 }
 
-.soon-copy p {
-  font-size: 12px;
-  color: #475569;
-  line-height: 1.4;
+.fuel-chip {
+  align-self: flex-start;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.fuel-chip.up { background: #fff1c2; color: #7a5600; }
+.fuel-chip.down { background: #dcfce7; color: #15803d; }
+.fuel-chip.flat { background: var(--line); color: #475569; }
+
+.fuel-ago {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed #fecaca;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #e5484d;
+}
+
+.fuel-ago b {
+  font-size: 13px;
+  font-weight: 800;
+  color: #d92d20;
+}
+
+.ago-text {
+  color: #d92d20;
+  font-weight: 700;
 }
 
 /* ------------------------------------------------------------------ */

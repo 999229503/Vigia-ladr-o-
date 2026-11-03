@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type TouchEvent as ReactTouchEvent } from "react";
 import {
   Menu, Check, Clock, HelpCircle, X, BarChart2, Heart, Coins,
-  GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid, Fuel,
+  GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid,
   ChevronRight, ChevronDown, ExternalLink, ArrowUpRight, Info, Search, RefreshCw,
   FileText, Flag, Percent, DollarSign, Briefcase, TrendingUp
 } from "lucide-react";
 import { presidents, type President } from "./data/presidents";
 import { mandateRecords, mandateStatuses, type MandateRecord, type MandateStatus } from "./data/mandates";
+import { fuelNowPeriod, fuelPrices, fuelSources, fuelYearAgoPeriod, type FuelPrice } from "./data/fuels";
 import { socialCheckedAt, socialIndicators, type SocialIndicator } from "./data/indicators";
 import { describeSeries, seriesDefs, useBcbIndicators, type SeriesId } from "./bcb";
 
@@ -129,7 +130,7 @@ const sources: Source[] = [
   { name: "DATASUS", description: "Informações de saúde pública e sistemas do SUS", url: "https://datasus.saude.gov.br/" },
   { name: "INEP / Ministério da Educação", description: "Indicadores oficiais da educação brasileira (IDEB)", url: "https://www.gov.br/inep/pt-br" },
   { name: "Atlas da Violência / Ipea", description: "Indicadores de violência e segurança pública", url: "https://www.ipea.gov.br/atlasviolencia/" },
-  { name: "ANP", description: "Preços de combustíveis (ainda não conectado ao app)", url: "https://www.gov.br/anp/pt-br" }
+  { name: "ANP", description: "Síntese semanal dos preços de combustíveis, usada no cartão de combustíveis", url: "https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/sintese-semanal-do-comportamento-dos-precos-dos-combustiveis" }
 ];
 
 type PromiseSource = { name: string; description: string; url: string; kind: "Oficial" | "Imprensa" };
@@ -151,6 +152,18 @@ const promiseSources: PromiseSource[] = [
   { name: "ND Mais", description: "Balanço de 30/12/2025: reforma administrativa, fila do SUS e desmatamento zero", url: "https://ndmais.com.br/politica/promessas-de-lula-balanco-tres-anos-governo/", kind: "Imprensa" },
   { name: "O POVO", description: "Coluna de 18/10/2026: 27 de 36 promessas cumpridas após a promulgação do fim da escala 6x1", url: "https://mais.opovo.com.br/colunistas/beatriz-cavalcante/2026/10/18/6x1-promessas-cumpridas-e-pressao-por-ajustes.html", kind: "Imprensa" }
 ];
+
+function brl(value: number): string {
+  return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/** Variação em relação a 12 meses atrás, calculada com os dois preços exibidos. */
+function fuelChange(f: FuelPrice): { cls: "up" | "down" | "flat"; label: string } {
+  const pct = ((f.now - f.yearAgo) / f.yearAgo) * 100;
+  if (Math.abs(pct) < 0.05) return { cls: "flat", label: "estável" };
+  const text = Math.abs(pct).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return pct > 0 ? { cls: "up", label: `▲ ${text}%` } : { cls: "down", label: `▼ ${text}%` };
+}
 
 /* ------------------------------------------------------------------ */
 /* Peças de interface                                                  */
@@ -460,16 +473,37 @@ export default function App() {
                 </p>
               </section>
 
-              {/* Combustíveis: ainda sem integração com a ANP */}
-              <section className="soon-card">
-                <div className="soon-icon"><Fuel size={18} /></div>
-                <div className="soon-copy">
-                  <strong>Combustíveis · em breve</strong>
-                  <p>Os preços ainda não estão conectados à base da ANP, então o app não mostra valores.</p>
-                  <a className="text-link" href="https://www.gov.br/anp/pt-br" target="_blank" rel="noreferrer">
-                    Consultar na ANP ↗
-                  </a>
+              {/* Combustíveis: média nacional da ANP, hoje x 12 meses atrás */}
+              <section aria-label="Combustíveis">
+                <div className="section-head">
+                  <div>
+                    <h2>Combustíveis</h2>
+                    <small>Média nacional de revenda · ANP</small>
+                  </div>
+                  <a className="text-link" href={fuelSources.now.url} target="_blank" rel="noreferrer">Fonte ↗</a>
                 </div>
+
+                <div className="fuel-grid">
+                  {fuelPrices.map((f) => {
+                    const change = fuelChange(f);
+                    return (
+                      <article key={f.id} className="fuel-tile">
+                        <span className="fuel-name">{f.name}</span>
+                        <strong>R$ {brl(f.now)}</strong>
+                        <em className={`fuel-chip ${change.cls}`}>{change.label}</em>
+                        <div className="fuel-ago">
+                          <span>12 meses atrás</span>
+                          <b>R$ {brl(f.yearAgo)}</b>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+
+                <p className="muted-text footnote">
+                  Hoje: semana de {fuelNowPeriod}. <span className="ago-text">12 meses atrás: semana de {fuelYearAgoPeriod}.</span>{" "}
+                  Variação calculada entre as duas semanas. Valores guardados no app e atualizados à mão a cada edição da ANP.
+                </p>
               </section>
             </>
           )}
@@ -607,7 +641,7 @@ export default function App() {
               <div className="notice">
                 <Info size={16} />
                 <span>
-                  Economia (IPCA, Selic, dólar e desemprego) vem ao vivo do Banco Central. Saúde, educação e segurança são os últimos valores publicados pelas fontes, com data e link. Combustíveis ainda não estão conectados.
+                  Economia (IPCA, Selic, dólar e desemprego) vem ao vivo do Banco Central. Saúde, educação e segurança são os últimos valores publicados pelas fontes, com data e link. Combustíveis são os preços médios da síntese semanal da ANP, guardados com a data da semana.
                   A lista de presidentes é uma base inicial e deve ser conferida no Arquivo Nacional e na Biblioteca da Presidência.
                 </span>
               </div>
