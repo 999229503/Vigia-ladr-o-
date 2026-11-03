@@ -649,6 +649,19 @@ a.president-row,
   color: #475569;
 }
 
+.kind-pill {
+  display: inline-block;
+  margin-top: 5px;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.kind-pill.official { background: #dcfce7; color: #15803d; }
+.kind-pill.press { background: #fff1c2; color: #7a5600; }
+
 .count-pill.has {
   background: #e3ecff;
   color: #0c3a8a;

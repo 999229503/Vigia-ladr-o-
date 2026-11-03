@@ -132,6 +132,26 @@ const sources: Source[] = [
   { name: "ANP", description: "Preços de combustíveis (ainda não conectado ao app)", url: "https://www.gov.br/anp/pt-br" }
 ];
 
+type PromiseSource = { name: string; description: string; url: string; kind: "Oficial" | "Imprensa" };
+
+/** Fontes de cada registro do mandato atual. "Oficial" comprova o fato (lei, promulgação, relatório); "Imprensa" traz a classificação de cumprida ou não cumprida. */
+const promiseSources: PromiseSource[] = [
+  { name: "Senado Notícias · Lei 15.270", description: "Sanção da isenção do Imposto de Renda até R$ 5 mil (26/11/2025)", url: "https://www12.senado.leg.br/noticias/materias/2025/11/27/sancionada-isencao-do-imposto-de-renda-para-quem-ganha-ate-r-5-mil-por-mes", kind: "Oficial" },
+  { name: "Agência Gov · sanção da lei do IR", description: "Cobertura oficial da sanção da lei que amplia a isenção do IR", url: "https://agenciagov.ebc.com.br/noticias/202511/lula-sanciona-lei-que-amplia-isencao-do-imposto-de-renda-para-quem-ganha-ate-r-5-mil-assista", kind: "Oficial" },
+  { name: "Congresso Nacional · Emenda 141", description: "Sessão solene de 16/10/2026 que promulgou o fim da escala 6x1", url: "https://www.congressonacional.leg.br/en_US/sessoes/agenda-do-congresso-nacional/-/pauta/592942", kind: "Oficial" },
+  { name: "Senado Notícias · Emenda 132", description: "Promulgação da reforma tributária (20/12/2023)", url: "https://www12.senado.leg.br/noticias/materias/2023/12/20/congresso-promulga-reforma-tributaria", kind: "Oficial" },
+  { name: "MDS · Mapa da Fome", description: "Relatório da FAO de 21/07/2026: Brasil segue fora do Mapa da Fome", url: "https://www.gov.br/mds/pt-br/noticias/relatorio-da-onu-confirma-que-brasil-permanece-fora-do-mapa-da-fome-e-aponta-melhora-em-indicadores", kind: "Oficial" },
+  { name: "Ministério das Cidades · Minha Casa, Minha Vida", description: "MP 1.162/2023 e Lei 14.620/2023", url: "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/habitacao/programa-minha-casa-minha-vida/sobre-o-minha-casa-minha-vida-1", kind: "Oficial" },
+  { name: "Câmara dos Deputados · Lei 14.621", description: "Estratégia Nacional de Formação de Especialistas, no âmbito do Mais Médicos", url: "https://www.camara.leg.br/noticias/980066-ENTRA-EM-VIGOR-LEI-QUE-INSTITUI-ESTRATEGIA-DE-APOIO-AO-PROGRAMA-MAIS-MEDICOS", kind: "Oficial" },
+  { name: "Senado Notícias · Lei 14.690", description: "Desenrola Brasil: MP 1.176/2023 e lei de 03/10/2023", url: "https://www12.senado.leg.br/noticias/materias/2023/10/04/sancionada-a-lei-que-prorroga-desenrola-brasil-ate-o-fim-de-2023", kind: "Oficial" },
+  { name: "Câmara dos Deputados · reforma administrativa", description: "Criação do grupo de trabalho da reforma administrativa (21/05/2025)", url: "https://www.camara.leg.br/noticias/1161492-motta-indica-deputado-pedro-paulo-para-coordenar-grupo-de-trabalho-da-reforma-administrativa/", kind: "Oficial" },
+  { name: "Senado Notícias · PEC da Segurança", description: "PEC da Segurança Pública no Plenário (14/10/2026)", url: "https://www12.senado.leg.br/noticias/materias/2026/10/14/pec-da-seguranca-publica-esta-na-pauta-do-plenario-nesta-quinta-feira", kind: "Oficial" },
+  { name: "g1 (via News Rondônia)", description: "Balanço de 22/07/2026: 36 compromissos de 2022, com 26 cumpridos, 4 em parte e 6 não cumpridos", url: "https://newsrondonia.com.br/politica/2026/07/22/balanco-de-governo-de-lula-aponta-26-promessas-cumpridas/", kind: "Imprensa" },
+  { name: "Folha de S.Paulo (via Gazeta do Povo)", description: "Levantamento de 19/01/2025: 103 promessas de campanha de 2022", url: "https://www.gazetadopovo.com.br/republica/lula-metade-mandato-28-promessas-cumpridas/", kind: "Imprensa" },
+  { name: "ND Mais", description: "Balanço de 30/12/2025: reforma administrativa, fila do SUS e desmatamento zero", url: "https://ndmais.com.br/politica/promessas-de-lula-balanco-tres-anos-governo/", kind: "Imprensa" },
+  { name: "O POVO", description: "Coluna de 18/10/2026: 27 de 36 promessas cumpridas após a promulgação do fim da escala 6x1", url: "https://mais.opovo.com.br/colunistas/beatriz-cavalcante/2026/10/18/6x1-promessas-cumpridas-e-pressao-por-ajustes.html", kind: "Imprensa" }
+];
+
 /* ------------------------------------------------------------------ */
 /* Peças de interface                                                  */
 /* ------------------------------------------------------------------ */
@@ -602,6 +622,29 @@ export default function App() {
                     <ExternalLink size={16} color="#0d253f" />
                   </a>
                 ))}
+              </div>
+
+              <div className="president-group">
+                <h2 className="group-title">Fontes das promessas do mandato atual</h2>
+                <div className="notice">
+                  <Info size={16} />
+                  <span>
+                    Se uma medida foi aprovada, sancionada ou promulgada, a prova está em fonte oficial (Senado, Câmara, Congresso, ministérios).
+                    Já “cumprida” ou “não cumprida” é uma avaliação: ela vem dos balanços da imprensa (g1, Folha, ND Mais), marcados como Imprensa. Não existe placar oficial do governo.
+                  </span>
+                </div>
+                <div className="source-list">
+                  {promiseSources.map((s) => (
+                    <a key={s.url} href={s.url} target="_blank" rel="noreferrer" className="president-row link-row">
+                      <div className="president-main">
+                        <strong>{s.name}</strong>
+                        <span>{s.description}</span>
+                        <em className={`kind-pill ${s.kind === "Oficial" ? "official" : "press"}`}>{s.kind}</em>
+                      </div>
+                      <ExternalLink size={16} color="#0d253f" />
+                    </a>
+                  ))}
+                </div>
               </div>
             </section>
           )}

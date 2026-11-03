@@ -21,6 +21,7 @@ npm run preview
 - **Saúde, educação e segurança:** mortalidade de menores de 5 anos (Unicef, 2024), IDEB 2025 (MEC/Inep) e mortes violentas intencionais de 2025 (Anuário Brasileiro de Segurança Pública). São valores publicados pelas fontes, guardados em `src/data/indicators.ts` com data de conferência e link; não se atualizam sozinhos.
 - **Presidentes:** lista em ordem do mais recente para o mais antigo, agrupada por período histórico, mostrando primeiro de 2000 em diante, com seletor para o histórico completo desde 1889. A busca ignora acentos e procura por nome, período ou ano. A ficha de cada mandato abre de baixo para cima, com a foto em destaque.
 - **Promessas:** lista dos registros de mandato com status, categoria e link para a fonte, com filtro por status.
+- **Fontes das promessas:** a aba Mais lista cada fonte usada nos registros do mandato atual, marcada como Oficial (lei, promulgação, relatório) ou Imprensa (balanços que classificam cada promessa como cumprida ou não). A classificação é uma avaliação, não um placar oficial.
 - **Mais:** catálogo de fontes oficiais (Banco Central, Arquivo Nacional, Biblioteca da Presidência, Portal da Transparência, IBGE/SIDRA, DATASUS, INEP, Atlas da Violência/Ipea e ANP).
 - Manifesto PWA, ícone e cache básico de recursos do mesmo domínio para facilitar instalação e retorno offline.
 
