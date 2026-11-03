@@ -1,1 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#104a32"/><path d="M90 365h332v28H90zM125 333h262v25H125zM150 180h212v22H150zM170 202h22v125h-22zM238 202h22v125h-22zM306 202h22v125h-22zM120 150l136-72 136 72v18H120z" fill="#f5ce42"/><path d="M208 260h96v73h-96z" fill="#f5ce42" opacity=".35"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="64 64 896 896" width="512" height="512">
+<defs>
+<clipPath id="card"><rect x="64" y="64" width="896" height="896" rx="150"/></clipPath>
+<clipPath id="lens"><circle cx="600" cy="440" r="240"/></clipPath>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1d98a"/><stop offset=".5" stop-color="#c9a24a"/><stop offset="1" stop-color="#e6c872"/></linearGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".18"/><stop offset="1" stop-color="#cfe3f7" stop-opacity=".10"/></linearGradient>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7fbff"/><stop offset="1" stop-color="#deeefb"/></linearGradient>
+<linearGradient id="tw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#eef5fc"/><stop offset="1" stop-color="#a9c4e4"/></linearGradient>
+<filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#4a6a96" flood-opacity=".25"/></filter>
+</defs>
+<g clip-path="url(#card)">
+<rect x="64" y="64" width="448" height="448" fill="#bcd8f3"/>
+<rect x="512" y="64" width="448" height="448" fill="#b9ecd3"/>
+<rect x="64" y="512" width="448" height="448" fill="#b5d3f2"/>
+<rect x="512" y="512" width="448" height="448" fill="#bff0d6"/>
+<g fill="none" stroke="#8fb2dc" stroke-width="2" opacity=".7">
+<path d="M90 140 q60 -50 130 -20 t90 60"/><path d="M90 175 q60 -40 120 -10 t80 50"/><path d="M100 210 q50 -30 100 0 t60 40"/><path d="M110 245 q40 -20 80 5 t40 30"/><path d="M85 300 q50 20 40 80 t-30 70"/>
+</g>
+<g fill="none" stroke="#7fbfa0" stroke-width="2" opacity=".6"><path d="M720 64 L860 220 L960 260"/><path d="M780 64 q80 140 180 220"/><path d="M900 90 q-30 120 60 200"/></g>
+<circle cx="400" cy="560" r="260" fill="#c4f1da" opacity=".7"/>
+</g>
+<!-- Congresso -->
+<g>
+<path d="M210 600 q60 -90 190 -50 l10 50z" fill="#dce9f7" stroke="#2c5282" stroke-width="5"/>
+<rect x="200" y="598" width="560" height="46" fill="#eef5fc" stroke="#2c5282" stroke-width="5"/>
+<g stroke="#7fa3cc" stroke-width="3"><path d="M270 604v34M340 604v34M410 604v34M480 604v34M550 604v34M620 604v34M690 604v34"/></g>
+<rect x="150" y="582" width="620" height="16" fill="#f5f9fd" stroke="#2c5282" stroke-width="5"/>
+<rect x="454" y="280" width="68" height="318" fill="url(#tw)" stroke="#2c5282" stroke-width="5"/>
+<rect x="528" y="280" width="108" height="318" fill="url(#tw)" stroke="#2c5282" stroke-width="5"/>
+<g stroke="#7fa3cc" stroke-width="2"><path d="M570 280v318M600 280v318M528 330h108M528 380h108M528 430h108M528 480h108M528 530h108"/></g>
+<path d="M592 514 h220 q-30 52 -110 52 q-80 0 -110 -52z" fill="#e9f3fc" stroke="#2c5282" stroke-width="5"/>
+</g>
+<!-- lente -->
+<g filter="url(#sh)">
+<circle cx="600" cy="440" r="240" fill="url(#glass)"/>
+<path d="M800 650 l95 105" stroke="#2c5282" stroke-width="0"/>
+<rect x="808" y="640" width="60" height="150" rx="26" transform="rotate(-42 838 715)" fill="#7ea2cf" stroke="#2c5282" stroke-width="6"/>
+<rect x="770" y="618" width="50" height="40" rx="12" transform="rotate(-42 795 638)" fill="url(#gold)" stroke="#2c5282" stroke-width="4"/>
+<circle cx="600" cy="440" r="248" fill="none" stroke="url(#gold)" stroke-width="30"/>
+<circle cx="600" cy="440" r="262" fill="none" stroke="#2c5282" stroke-width="4"/>
+<circle cx="600" cy="440" r="233" fill="none" stroke="#2c5282" stroke-width="3"/>
+</g>
+<path d="M440 330 a180 180 0 0 1 120 -100" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".85"/>
+<circle cx="420" cy="400" r="7" fill="#fff" opacity=".9"/>
+<rect x="64" y="64" width="896" height="896" rx="150" fill="none" stroke="url(#gold)" stroke-width="6"/>
+</svg>
