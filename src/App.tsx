@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type TouchEvent as ReactTouchEvent } from "react";
 import {
-  Menu, Check, Clock, HelpCircle, BarChart2, Heart, Coins,
+  Menu, Check, Clock, HelpCircle, X, BarChart2, Heart, Coins,
   GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid, Fuel,
   ChevronRight, ChevronDown, ExternalLink, ArrowUpRight, Info, Search, RefreshCw,
   FileText, Flag, Percent, DollarSign, Briefcase, TrendingUp
@@ -30,25 +30,33 @@ const flatRecords: FlatRecord[] = presidents.flatMap((p) =>
 );
 
 function countByStatus(records: FlatRecord[]): Record<MandateStatus, number> {
-  const counts: Record<MandateStatus, number> = { "Realizado": 0, "Em andamento": 0, "A validar": 0 };
+  const counts: Record<MandateStatus, number> = { "Realizado": 0, "Em andamento": 0, "Não cumprido": 0, "A validar": 0 };
   for (const r of records) counts[r.status] += 1;
   return counts;
 }
 
 const statusCounts = countByStatus(flatRecords);
 
+// O painel da tela inicial mostra só o mandato em exercício, para não misturar governos.
+const currentFlat = flatRecords.filter((r) => r.current);
+const currentCounts = countByStatus(currentFlat);
+const currentPresident = presidents.find((p) => p.end === null);
+const currentName = currentPresident ? currentPresident.name.split(" — ")[0] : "";
+
 function statusClass(status: MandateStatus): string {
   if (status === "Realizado") return "done";
   if (status === "Em andamento") return "progress";
+  if (status === "Não cumprido") return "failed";
   return "pending";
 }
 
 function ringBackground(counts: Record<MandateStatus, number>): string {
-  const total = counts["Realizado"] + counts["Em andamento"] + counts["A validar"];
+  const total = counts["Realizado"] + counts["Em andamento"] + counts["Não cumprido"] + counts["A validar"];
   if (total === 0) return "#e2e8f0";
   const a = (counts["Realizado"] / total) * 100;
   const b = a + (counts["Em andamento"] / total) * 100;
-  return `conic-gradient(#00a859 0% ${a}%, #ffc400 ${a}% ${b}%, #94a3b8 ${b}% 100%)`;
+  const c = b + (counts["Não cumprido"] / total) * 100;
+  return `conic-gradient(#00a859 0% ${a}%, #ffc400 ${a}% ${b}%, #e5484d ${b}% ${c}%, #94a3b8 ${c}% 100%)`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -308,11 +316,11 @@ export default function App() {
           {section === "Início" && (
             <>
               {/* Registros catalogados: contagem real da base do app, não uma nota de governo */}
-              <section className="dashboard-promises-card" aria-label="Registros catalogados por status">
-                <div className="ring-container" style={{ background: ringBackground(statusCounts) }}>
+              <section className="dashboard-promises-card" aria-label="Registros do mandato atual por status">
+                <div className="ring-container" style={{ background: ringBackground(currentCounts) }}>
                   <div className="ring-inner">
-                    <strong>{totalRecords}</strong>
-                    <span>Registros<br />catalogados</span>
+                    <strong>{currentFlat.length}</strong>
+                    <span>Registros<br />do mandato</span>
                   </div>
                 </div>
 
@@ -320,7 +328,7 @@ export default function App() {
                   <div className="stat-item">
                     <div className="stat-icon-wrapper green"><Check size={16} strokeWidth={3} /></div>
                     <div className="stat-info">
-                      <strong>{statusCounts["Realizado"]}</strong>
+                      <strong>{currentCounts["Realizado"]}</strong>
                       <span>Realizados</span>
                     </div>
                   </div>
@@ -328,15 +336,23 @@ export default function App() {
                   <div className="stat-item">
                     <div className="stat-icon-wrapper yellow"><Clock size={16} strokeWidth={3} /></div>
                     <div className="stat-info">
-                      <strong>{statusCounts["Em andamento"]}</strong>
+                      <strong>{currentCounts["Em andamento"]}</strong>
                       <span>Em andamento</span>
+                    </div>
+                  </div>
+
+                  <div className="stat-item">
+                    <div className="stat-icon-wrapper red"><X size={16} strokeWidth={3} /></div>
+                    <div className="stat-info">
+                      <strong>{currentCounts["Não cumprido"]}</strong>
+                      <span>Não cumpridos</span>
                     </div>
                   </div>
 
                   <div className="stat-item">
                     <div className="stat-icon-wrapper gray"><HelpCircle size={16} strokeWidth={3} /></div>
                     <div className="stat-info">
-                      <strong>{statusCounts["A validar"]}</strong>
+                      <strong>{currentCounts["A validar"]}</strong>
                       <span>A validar</span>
                     </div>
                   </div>
@@ -346,7 +362,7 @@ export default function App() {
               <button className="notice notice-button" onClick={() => go("Promessas")}>
                 <Info size={16} />
                 <span>
-                  Amostra inicial de registros com fonte. Não é uma nota do governo. Toque para ver cada registro.
+                  Mostrando só o mandato atual{currentName ? ` (${currentName})` : ""}. Registros com fonte; não é uma nota do governo. Toque para ver cada um.
                 </span>
               </button>
 
@@ -530,6 +546,11 @@ export default function App() {
                     <strong>{currentMandate.name.split(" — ")[0]}</strong>
                     <small>Em exercício desde {currentMandate.start}</small>
                   </div>
+                  <p className="muted-text">
+                    Outros levantamentos contam de formas diferentes: o g1 acompanhou 36 compromissos de 2022 até 30/06/2026 e
+                    apontou 26 cumpridos, 4 em parte e 6 não cumpridos; a Folha acompanhou 103 promessas em janeiro de 2025 e
+                    apontou 28% cumpridas. A lista abaixo reúne os itens que foi possível confirmar em fontes.
+                  </p>
                   <div className="record-list">
                     {currentRecords.map((r) => <RecordCard key={`${r.presidentId}-${r.title}`} r={r} />)}
                     {currentRecords.length === 0 && (

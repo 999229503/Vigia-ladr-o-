@@ -272,7 +272,7 @@ body {
 .promises-stats-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   margin-left: 16px;
 }
@@ -282,8 +282,8 @@ body {
   align-items: center;
   gap: 10px;
   background: #f8fafc;
-  padding: 7px 12px;
-  border-radius: 16px;
+  padding: 5px 12px;
+  border-radius: 14px;
   border: 1px solid #f1f5f9;
 }
 
@@ -299,6 +299,7 @@ body {
 
 .stat-icon-wrapper.green { background: var(--green); }
 .stat-icon-wrapper.yellow { background: var(--yellow); color: #3d2c00; }
+.stat-icon-wrapper.red { background: #e5484d; }
 .stat-icon-wrapper.gray { background: #94a3b8; }
 
 .stat-info {
@@ -813,6 +814,7 @@ a.president-row,
 
 .mandate-record.done { border-left-color: var(--green); }
 .mandate-record.progress { border-left-color: var(--yellow); }
+.mandate-record.failed { border-left-color: #e5484d; }
 .mandate-record.pending { border-left-color: #94a3b8; }
 
 .mandate-record strong {
@@ -942,6 +944,7 @@ a.president-row,
 
 .record-card.done::before { background: var(--green); }
 .record-card.progress::before { background: var(--yellow); }
+.record-card.failed::before { background: #e5484d; }
 
 .record-top {
   display: flex;
@@ -989,6 +992,7 @@ a.president-row,
 
 .status-pill.done { background: #dcfce7; color: #15803d; }
 .status-pill.progress { background: #fff1c2; color: #7a5600; }
+.status-pill.failed { background: #fde2e3; color: #b42318; }
 .status-pill.pending { background: var(--line); color: #475569; }
 
 /* ------------------------------------------------------------------ */
