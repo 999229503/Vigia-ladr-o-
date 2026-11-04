@@ -44,9 +44,9 @@ export const presidents: President[] = [
   { id: "fhc-2", name: "Fernando Henrique Cardoso — 2º mandato", start: 1999, end: 2003, period: "Nova República" },
   { id: "lula-1", name: "Luiz Inácio Lula da Silva — 1º mandato", start: 2003, end: 2007, period: "Nova República" },
   { id: "lula-2", name: "Luiz Inácio Lula da Silva — 2º mandato", start: 2007, end: 2011, period: "Nova República" },
-  { id: "dilma-1", name: "Dilma Rousseff — 1º mandato", start: 2011, end: 2015, period: "Nova República" },
+  { id: "dilma-1", name: "Dilma Rousseff — 1º mandato", start: 2011, end: 2015, period: "Nova República", note: "Reportagem do Congresso em Foco (30/09/2014) concluiu que, entre as principais metas de 2010, só uma tinha sido cumprida integralmente. A situação dos demais itens é a daquela data." },
   { id: "dilma-2", name: "Dilma Rousseff — 2º mandato", start: 2015, end: 2016, period: "Nova República", note: "Mandato interrompido em 2016." },
-  { id: "temer", name: "Michel Temer", start: 2016, end: 2019, period: "Nova República" },
-  { id: "bolsonaro", name: "Jair Bolsonaro", start: 2019, end: 2023, period: "Nova República" },
+  { id: "temer", name: "Michel Temer", start: 2016, end: 2019, period: "Nova República", note: "As classificações do Aos Fatos sobre a Ponte para o Futuro refletem a situação de 10/05/2017, não o fim do mandato." },
+  { id: "bolsonaro", name: "Jair Bolsonaro", start: 2019, end: 2023, period: "Nova República", note: "Levantamento do g1 (26/07/2022) sobre 58 compromissos da campanha de 2018: 21 cumpridos (36%), 16% cumpridos em parte e 48% não cumpridos." },
   { id: "lula-3", name: "Luiz Inácio Lula da Silva — mandato iniciado em 2023", start: 2023, end: null, period: "Nova República", note: "Mandato em curso; atualizar apenas com fontes recentes." }
 ];

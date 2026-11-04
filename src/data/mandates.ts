@@ -1,4 +1,5 @@
 import { extraRecords, historicalRecords } from "./mandates-historico";
+import { verifiedRecords } from "./mandates-verificados";
 
 export type MandateStatus = "Realizado" | "Em andamento" | "Não cumprido" | "A validar";
 
@@ -74,7 +75,7 @@ const detailedRecords: Record<string, MandateRecord[]> = {
 // Junta as três fontes: detalhados (acima), históricos e adicionais, sem duplicar títulos.
 function merge(): Record<string, MandateRecord[]> {
   const out: Record<string, MandateRecord[]> = {};
-  for (const source of [detailedRecords, historicalRecords, extraRecords]) {
+  for (const source of [detailedRecords, verifiedRecords, historicalRecords, extraRecords]) {
     for (const [id, list] of Object.entries(source)) {
       const current = out[id] ?? (out[id] = []);
       for (const r of list) if (!current.some((c) => c.title === r.title)) current.push(r);

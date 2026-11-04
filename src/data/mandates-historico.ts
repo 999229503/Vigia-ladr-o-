@@ -175,40 +175,36 @@ export const extraRecords: Record<string, MandateRecord[]> = {
     { title: "Assunção da presidência em 1891", detail: "Vice-presidente, assumiu com a renúncia de Deodoro e concluiu o mandato sem convocar nova eleição.", category: "Ação documentada", status: "Realizado", url: AN }
   ],
   "fhc-2": [
-    { title: "Lei de Responsabilidade Fiscal", detail: "Lei Complementar 101, de 2000, que fixou limites de gasto e endividamento para União, estados e municípios.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Lei dos Genéricos", detail: "Lei 9.787, de 1999, que criou os medicamentos genéricos no país.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
+    { title: "Lei de Responsabilidade Fiscal", detail: "Lei Complementar 101, de 2000, que fixou limites de gasto e endividamento para União, estados e municípios.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/572856" },
+    { title: "Lei dos Genéricos", detail: "Lei 9.787, de 1999, que criou os medicamentos genéricos no país.", category: "Ação documentada", status: "Realizado", url: "https://www2.camara.leg.br/legin/fed/lei/1999/lei-9787-10-fevereiro-1999-351613-norma-pl.html" },
     { title: "Bolsa Escola", detail: "Programa de renda mínima ligado à frequência escolar, criado em 2001.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Racionamento de energia de 2001", detail: "Crise de abastecimento elétrico que levou a metas obrigatórias de redução de consumo.", category: "Ação documentada", status: "Realizado", url: AN }
   ],
   "lula-1": [
-    { title: "Estatuto do Desarmamento", detail: "Lei 10.826, de dezembro de 2003.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "ProUni", detail: "Lei 11.096, de 2005, que criou bolsas em faculdades privadas.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Lei Maria da Penha", detail: "Lei 11.340, de agosto de 2006, contra a violência doméstica e familiar.", category: "Ação documentada", status: "Realizado", url: PLANALTO }
+    { title: "Estatuto do Desarmamento", detail: "Lei 10.826, de dezembro de 2003.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/552702" },
+    { title: "ProUni", detail: "Lei 11.096, de 2005, que criou bolsas em faculdades privadas.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/570545" },
+    { title: "Lei Maria da Penha", detail: "Lei 11.340, de agosto de 2006, contra a violência doméstica e familiar.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/572125" }
   ],
   "lula-2": [
-    { title: "Minha Casa, Minha Vida", detail: "Programa habitacional criado pela Lei 11.977, de 2009.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Lei da Ficha Limpa", detail: "Lei Complementar 135, de junho de 2010, que ampliou as hipóteses de inelegibilidade.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Regime de partilha do pré-sal", detail: "Lei 12.351, de dezembro de 2010.", category: "Ação documentada", status: "Realizado", url: PLANALTO }
+    { title: "Minha Casa, Minha Vida", detail: "Programa habitacional criado pela Lei 11.977, de 2009.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/580200" },
+    { title: "Lei da Ficha Limpa", detail: "Lei Complementar 135, de junho de 2010, que ampliou as hipóteses de inelegibilidade.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/572890" },
+    { title: "Regime de partilha do pré-sal", detail: "Lei 12.351, de dezembro de 2010.", category: "Ação documentada", status: "Realizado", url: "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/leis/lei-n-12-351-2010.pdf" }
   ],
   "dilma-1": [
-    { title: "Lei de Acesso à Informação", detail: "Lei 12.527, de 2011.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Comissão Nacional da Verdade", detail: "Criada pela Lei 12.528, de 2011, para apurar violações de direitos humanos de 1946 a 1988.", category: "Ação documentada", status: "Realizado", url: CNV },
-    { title: "Lei de Cotas nas universidades federais", detail: "Lei 12.711, de 2012.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Marco Civil da Internet", detail: "Lei 12.965, sancionada em abril de 2014.", category: "Ação documentada", status: "Realizado", url: PLANALTO }
+    { title: "Lei de Acesso à Informação", detail: "Lei 12.527, de 2011.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/584383" },
+    { title: "Comissão Nacional da Verdade", detail: "Criada pela Lei 12.528, de 2011, para apurar violações de direitos humanos de 1946 a 1988.", category: "Ação documentada", status: "Realizado", url: "https://www2.camara.leg.br/legin/fed/lei/2011/lei-12528-18-novembro-2011-611803-norma-pl.html" },
+    { title: "Lei de Cotas nas universidades federais", detail: "Lei 12.711, de 2012.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/588087/publicacao/15768908" },
+    { title: "Marco Civil da Internet", detail: "Lei 12.965, sancionada em abril de 2014.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/584776" }
   ],
   temer: [
-    { title: "Reforma do Ensino Médio", detail: "Lei 13.415, de 2017, que alterou o currículo e a carga horária.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Lei da Terceirização", detail: "Lei 13.429, de 2017, que ampliou a terceirização do trabalho.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Intervenção federal na segurança do Rio de Janeiro", detail: "Decretada em fevereiro de 2018.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Reforma da Previdência", detail: "A proposta (PEC 287) foi enviada ao Congresso, mas não chegou a ser votada no mandato.", category: "Promessa / compromisso", status: "Não cumprido", url: CAMARA }
+    { title: "Reforma do Ensino Médio", detail: "Lei 13.415, de 2017, que alterou o currículo e a carga horária.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/602639" },
+    { title: "Lei da Terceirização", detail: "Lei 13.429, de 2017, que ampliou a terceirização do trabalho.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/17672582" },
+    { title: "Intervenção federal na segurança do Rio de Janeiro", detail: "Decretada em fevereiro de 2018.", category: "Ação documentada", status: "Realizado", url: "https://agenciabrasil.ebc.com.br/politica/noticia/2018-02/intervencao-no-rio-altera-tramitacao-da-reforma-da-previdencia-na-camara" },
   ],
   bolsonaro: [
-    { title: "Reforma da Previdência", detail: "Emenda Constitucional 103, de novembro de 2019.", category: "Promessa / compromisso", status: "Realizado", url: PLANALTO },
-    { title: "Lei de Liberdade Econômica", detail: "Lei 13.874, de 2019, que reduziu exigências para abrir e tocar empresas.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Auxílio Emergencial", detail: "Lei 13.982, de 2020, com pagamentos a trabalhadores informais durante a pandemia.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Autonomia do Banco Central", detail: "Lei Complementar 179, de 2021, que fixou mandatos para a diretoria.", category: "Ação documentada", status: "Realizado", url: PLANALTO },
-    { title: "Privatização da Eletrobras", detail: "Lei 14.182, de 2021, que permitiu a desestatização da empresa.", category: "Promessa / compromisso", status: "Realizado", url: PLANALTO },
-    { title: "Reforma tributária", detail: "Prometida no início do mandato, não foi aprovada até 2022.", category: "Promessa / compromisso", status: "Não cumprido", url: CAMARA },
-    { title: "Reforma administrativa", detail: "A PEC 32/2020 não foi votada no Plenário durante o mandato.", category: "Promessa / compromisso", status: "Não cumprido", url: CAMARA }
+    { title: "Reforma da Previdência", detail: "Emenda Constitucional 103, promulgada em 12/11/2019, com idade mínima para homens e mulheres e novas alíquotas de contribuição (Agência Senado). O modelo de capitalização defendido na campanha não entrou no texto aprovado (Jornal DCI, dez/2020).", category: "Promessa / compromisso", status: "Realizado", url: "https://www12.senado.leg.br/noticias/materias/2019/11/12/promulgada-emenda-constitucional-da-reforma-da-previdencia" },
+    { title: "Lei de Liberdade Econômica", detail: "Lei 13.874, de 2019, que reduziu exigências para abrir e tocar empresas.", category: "Ação documentada", status: "Realizado", url: "https://www2.camara.leg.br/legin/fed/lei/2019/lei-13874-20-setembro-2019-789149-normaatualizada-pl.html" },
+    { title: "Auxílio Emergencial", detail: "Lei 13.982, de 2020, com pagamentos a trabalhadores informais durante a pandemia.", category: "Ação documentada", status: "Realizado", url: "https://legis.senado.leg.br/norma/32045742" },
+    { title: "Autonomia do Banco Central", detail: "Lei Complementar 179, sancionada em 24/02/2021, com mandato de quatro anos para o presidente do BC, em ciclo diferente do mandato presidencial (Agência Senado). Em dez/2020 a promessa constava como não cumprida, pois o projeto aguardava votação na Câmara (Jornal DCI).", category: "Ação documentada", status: "Realizado", url: "https://www12.senado.leg.br/noticias/materias/2021/02/25/lei-que-estabelece-autonomia-do-banco-central-e-sancionada" },
+    { title: "Privatização da Eletrobras", detail: "Lei 14.182, de 2021, que permitiu a desestatização da empresa.", category: "Promessa / compromisso", status: "Realizado", url: "https://legis.senado.leg.br/norma/34276459" },
   ]
 };
