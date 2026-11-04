@@ -1,3 +1,6 @@
+import { extraRecords, historicalRecords } from "./mandates-historico";
+import { verifiedRecords } from "./mandates-verificados";
+
 export type MandateStatus = "Realizado" | "Em andamento" | "Não cumprido" | "A validar";
 
 export type MandateRecord = {
@@ -14,7 +17,7 @@ export const mandateStatuses: MandateStatus[] = ["Realizado", "Em andamento", "N
 // São uma amostra para validar a interface: cada item precisa ser conferido na fonte antes de divulgação pública.
 // "Não cumprido" marca promessas que a fonte citada aponta como não atendidas; confira a data de cada fonte, pois a situação pode mudar.
 // O status "A validar" marca registros cuja situação não foi confirmada em fonte oficial.
-export const mandateRecords: Record<string, MandateRecord[]> = {
+const detailedRecords: Record<string, MandateRecord[]> = {
   deodoro: [
     { title: "Proclamação da República", detail: "Liderou o movimento político-militar que depôs o Império em 15 de novembro de 1889.", category: "Ação documentada", status: "Realizado", url: "https://presidentes.an.gov.br/" },
     { title: "Primeira Constituição Republicana", detail: "Instalação da Assembleia Constituinte e promulgação da Constituição de 1891.", category: "Promessa / compromisso", status: "Realizado", url: "https://www.camara.leg.br/" }
@@ -68,3 +71,17 @@ export const mandateRecords: Record<string, MandateRecord[]> = {
     { title: "Desmatamento zero", detail: "O ND Mais (30/12/2025) diz que a meta, com prazo até 2023, não foi cumprida, embora o PRODES tenha registrado queda de 11,08% na Amazônia Legal entre ago/2024 e jul/2025. O governo define o objetivo como eliminar o desmatamento ilegal e compensar o legal. A Folha a listava como em andamento em jan/2025.", category: "Promessa / compromisso", status: "Não cumprido", url: "https://ndmais.com.br/politica/promessas-de-lula-balanco-tres-anos-governo/" }
   ]
 };
+
+// Junta as três fontes: detalhados (acima), históricos e adicionais, sem duplicar títulos.
+function merge(): Record<string, MandateRecord[]> {
+  const out: Record<string, MandateRecord[]> = {};
+  for (const source of [detailedRecords, verifiedRecords, historicalRecords, extraRecords]) {
+    for (const [id, list] of Object.entries(source)) {
+      const current = out[id] ?? (out[id] = []);
+      for (const r of list) if (!current.some((c) => c.title === r.title)) current.push(r);
+    }
+  }
+  return out;
+}
+
+export const mandateRecords: Record<string, MandateRecord[]> = merge();
