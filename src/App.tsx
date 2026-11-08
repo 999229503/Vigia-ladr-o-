@@ -15,6 +15,15 @@ import { MediaSection } from "./Media";
 type Section = "Início" | "Presidentes" | "Promessas" | "Mídia" | "Mais";
 const pages: Section[] = ["Início", "Presidentes", "Promessas", "Mídia", "Mais"];
 
+/** Cor da barra de status do celular em cada aba: igual à cor do topo da tela, para parecer uma peça só. */
+const themeColors: Record<Section, string> = {
+  "Início": "#d3e5fb",
+  "Presidentes": "#0541a8",
+  "Promessas": "#009650",
+  "Mídia": "#1670c4",
+  "Mais": "#112f4e"
+};
+
 /* ------------------------------------------------------------------ */
 /* Registros de mandato (derivados de data/mandates.ts)                */
 /* ------------------------------------------------------------------ */
@@ -231,6 +240,11 @@ export default function App() {
     setSection(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  // A barra de status acompanha a cor do topo de cada aba.
+  useEffect(() => {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", themeColors[section]);
+  }, [section]);
 
   useEffect(() => {
     if (!selectedPresident) return;
