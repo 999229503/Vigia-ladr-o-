@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type TouchEvent as ReactTouchEvent } from "react";
 import {
   Menu, Check, Clock, HelpCircle, X, BarChart2, Heart, Coins,
-  GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid,
+  GraduationCap, ShieldCheck, Users, CheckSquare, Grid,
   ChevronRight, ChevronDown, ExternalLink, ArrowUpRight, Info, Search, RefreshCw,
   FileText, Flag, Percent, DollarSign, Briefcase, TrendingUp, Newspaper
 } from "lucide-react";
@@ -769,17 +769,12 @@ export default function App() {
 
       {/* Navegação inferior */}
       <nav className="bottom-floating-nav" aria-label="Navegação inferior">
-        <button className={`nav-tab-btn ${section === "Início" ? "active" : ""}`} onClick={() => go("Início")}>
-          <Home size={20} />
-          <span>Início</span>
-        </button>
-
         <button className={`nav-tab-btn ${section === "Presidentes" ? "active" : ""}`} onClick={() => go("Presidentes")}>
           <Users size={20} />
           <span>Presidentes</span>
         </button>
 
-        <button className="nav-tab-main-btn" aria-label="Painel inicial" onClick={() => go("Início")}>
+        <button className="nav-tab-main-btn" aria-label="Início" onClick={() => go("Início")}>
           <BarChart2 size={24} />
         </button>
 
