@@ -1110,10 +1110,12 @@ a.president-row,
   background: #ffffff;
   border-radius: 30px;
   height: 64px;
-  display: flex;
-  justify-content: space-around;
+  /* 4 abas em colunas iguais, com a bolinha no centro exato (2 de cada lado) */
+  display: grid;
+  grid-template-columns: 1fr 1fr 64px 1fr 1fr;
+  justify-items: center;
   align-items: center;
-  padding: 0 10px;
+  padding: 0 8px;
   box-shadow: 0 10px 30px rgba(13, 37, 63, 0.14);
   z-index: 40;
 }
@@ -1130,7 +1132,8 @@ a.president-row,
   font-size: 10px;
   font-weight: 700;
   cursor: pointer;
-  min-width: 55px;
+  min-width: 0;
+  width: 100%;
 }
 
 .nav-tab-btn.active {
