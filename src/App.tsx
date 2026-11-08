@@ -3,16 +3,17 @@ import {
   Menu, Check, Clock, HelpCircle, X, BarChart2, Heart, Coins,
   GraduationCap, ShieldCheck, Home, Users, CheckSquare, Grid,
   ChevronRight, ChevronDown, ExternalLink, ArrowUpRight, Info, Search, RefreshCw,
-  FileText, Flag, Percent, DollarSign, Briefcase, TrendingUp
+  FileText, Flag, Percent, DollarSign, Briefcase, TrendingUp, Newspaper
 } from "lucide-react";
 import { presidents, type President } from "./data/presidents";
 import { mandateRecords, mandateStatuses, type MandateRecord, type MandateStatus } from "./data/mandates";
 import { fuelNowPeriod, fuelPrices, fuelSources, fuelYearAgoPeriod, type FuelPrice } from "./data/fuels";
 import { socialCheckedAt, socialIndicators, type SocialIndicator } from "./data/indicators";
 import { describeSeries, seriesDefs, useBcbIndicators, type SeriesId } from "./bcb";
+import { MediaSection } from "./Media";
 
-type Section = "Início" | "Presidentes" | "Promessas" | "Mais";
-const pages: Section[] = ["Início", "Presidentes", "Promessas", "Mais"];
+type Section = "Início" | "Presidentes" | "Promessas" | "Mídia" | "Mais";
+const pages: Section[] = ["Início", "Presidentes", "Promessas", "Mídia", "Mais"];
 
 /* ------------------------------------------------------------------ */
 /* Registros de mandato (derivados de data/mandates.ts)                */
@@ -337,6 +338,10 @@ export default function App() {
           <PageHero tone="green" title="Promessas e ações" subtitle="Cada registro tem status e link para a fonte." />
         )}
 
+        {section === "Mídia" && (
+          <PageHero tone="sky" title="Vídeos e artigos" subtitle="Conteúdo de terceiros sobre política. Não são fontes oficiais." />
+        )}
+
         {section === "Mais" && (
           <PageHero tone="navy" title="Fontes e métodos" subtitle="Portais oficiais usados ou indicados por este aplicativo." />
         )}
@@ -632,6 +637,9 @@ export default function App() {
             </section>
           )}
 
+          {/* Mídia: vídeos do YouTube e artigos da imprensa */}
+          {section === "Mídia" && <MediaSection />}
+
           {/* Mais: fontes oficiais */}
           {section === "Mais" && (
             <section className="page-section">
@@ -778,6 +786,11 @@ export default function App() {
         <button className={`nav-tab-btn ${section === "Promessas" ? "active" : ""}`} onClick={() => go("Promessas")}>
           <CheckSquare size={20} />
           <span>Promessas</span>
+        </button>
+
+        <button className={`nav-tab-btn ${section === "Mídia" ? "active" : ""}`} onClick={() => go("Mídia")}>
+          <Newspaper size={20} />
+          <span>Mídia</span>
         </button>
 
         <button className={`nav-tab-btn ${section === "Mais" ? "active" : ""}`} onClick={() => go("Mais")}>

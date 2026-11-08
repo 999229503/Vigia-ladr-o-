@@ -1,0 +1,170 @@
+/* Aba Mídia: vídeos do YouTube e artigos da imprensa */
+
+.page-hero.sky {
+  background: linear-gradient(135deg, #1e88e5, #0b4fa3);
+}
+
+.media-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.media-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 4px 15px rgba(13, 37, 63, 0.06);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.media-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--navy);
+  overflow: hidden;
+}
+
+.media-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.play-badge {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.play-badge > span {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(13, 37, 63, 0.72);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.article-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #16365a, var(--blue));
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.media-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px 14px 14px;
+}
+
+.media-body strong {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--navy);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.media-body p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #475569;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.media-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.media-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e3ecff;
+  color: #0c3a8a;
+}
+
+.third-party-tag {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff1c2;
+  color: #7a5600;
+}
+
+/* Player de vídeo (abre de baixo para cima, como a ficha do presidente) */
+
+.video-frame {
+  position: relative;
+  margin-top: 28px;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000000;
+}
+
+.video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.video-info strong {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--navy);
+}
+
+.video-info span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}

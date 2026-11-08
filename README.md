@@ -15,7 +15,7 @@ npm run preview
 
 ## O que está implementado
 
-- Identidade visual ObservaBrasil, com layout responsivo para celular e computador e navegação por abas (também por deslizar): Início, Presidentes, Promessas e Mais.
+- Identidade visual ObservaBrasil, com layout responsivo para celular e computador e navegação por abas (também por deslizar): Início, Presidentes, Promessas, Mídia e Mais.
 - **Início:** contagem de registros catalogados por status (realizado, em andamento, a validar), indicadores econômicos ao vivo e os últimos valores publicados de saúde, educação e segurança, cada um com data e link para a fonte.
 - **Economia ao vivo (Banco Central, SGS):** IPCA mensal (série 433), IPCA em 12 meses (13522), meta Selic (432), dólar de venda (1) e taxa de desocupação da PNAD (24369), consultados direto na API pública. Cada valor mostra a data de referência, tem estados de carregamento e erro, cache local de 24 horas e um botão para forçar a atualização. Sem conexão, o app mostra o último valor guardado e avisa.
 - **Saúde, educação e segurança:** mortalidade de menores de 5 anos (Unicef, 2024), IDEB 2025 (MEC/Inep) e mortes violentas intencionais de 2025 (Anuário Brasileiro de Segurança Pública). São valores publicados pelas fontes, guardados em `src/data/indicators.ts` com data de conferência e link; não se atualizam sozinhos.
@@ -23,6 +23,7 @@ npm run preview
 - **Promessas:** lista dos registros de mandato com status, categoria e link para a fonte, com filtro por status.
 - **Fontes das promessas:** a aba Mais lista cada fonte usada nos registros do mandato atual, marcada como Oficial (lei, promulgação, relatório) ou Imprensa (balanços que classificam cada promessa como cumprida ou não). A classificação é uma avaliação, não um placar oficial.
 - **Combustíveis (ANP):** preço médio nacional de gasolina comum, etanol e diesel S10 na semana mais recente, com a variação em relação a 12 meses atrás e o preço de 12 meses atrás em vermelho. Os valores vêm da Síntese Semanal da ANP, ficam em `src/data/fuels.ts` com a data de cada semana e não se atualizam sozinhos.
+- **Mídia:** aba de vídeos do YouTube e artigos da imprensa, sempre marcados como conteúdo de terceiros, não oficial. Os vídeos vêm da lista em `src/data/media.ts`: para publicar um, cole o link do YouTube em `videos` e o app gera miniatura e player. Os artigos (foto, título e resumo) são buscados automaticamente nos feeds RSS listados em `newsFeeds`, filtrados pelas palavras de `articleKeywords` (hoje, o presidente em exercício), com cache de 1 hora; a conversão dos feeds usa o serviço público rss2json.
 - **Mais:** catálogo de fontes oficiais (Banco Central, Arquivo Nacional, Biblioteca da Presidência, Portal da Transparência, IBGE/SIDRA, DATASUS, INEP, Atlas da Violência/Ipea e ANP).
 - Manifesto PWA, ícone e cache básico de recursos do mesmo domínio para facilitar instalação e retorno offline.
 
@@ -54,6 +55,8 @@ Use fotos de fontes oficiais ou livres (Biblioteca da Presidência, Arquivo Naci
 - `src/data/fuels.ts`: preços de combustíveis da síntese semanal da ANP, com datas e fontes.
 - `src/data/presidents.ts`: lista de mandatos presidenciais.
 - `src/data/mandates.ts`: registros de ações e promessas, indexados pelo `id` do mandato.
+- `src/data/media.ts`: lista de vídeos, feeds de imprensa, palavras-chave dos artigos e aviso de conteúdo de terceiros.
+- `src/media.ts`, `src/Media.tsx`, `src/media.css`: busca de artigos, leitura dos links do YouTube e tela da aba Mídia.
 - `public/`: manifesto PWA, service worker, ícones, imagem de capa (`brasilia-congresso-capa.jpg`) e `presidentes/` (fotos).
 
 ## Fontes principais
