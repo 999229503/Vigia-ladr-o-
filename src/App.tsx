@@ -774,13 +774,13 @@ export default function App() {
           <span>Presidentes</span>
         </button>
 
-        <button className="nav-tab-main-btn" aria-label="Início" onClick={() => go("Início")}>
-          <BarChart2 size={24} />
-        </button>
-
         <button className={`nav-tab-btn ${section === "Promessas" ? "active" : ""}`} onClick={() => go("Promessas")}>
           <CheckSquare size={20} />
           <span>Promessas</span>
+        </button>
+
+        <button className="nav-tab-main-btn" aria-label="Início" onClick={() => go("Início")}>
+          <BarChart2 size={24} />
         </button>
 
         <button className={`nav-tab-btn ${section === "Mídia" ? "active" : ""}`} onClick={() => go("Mídia")}>
