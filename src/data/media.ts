@@ -21,8 +21,11 @@ export type VideoEntry = {
 };
 
 export const videos: VideoEntry[] = [
-  // Exemplo (tire as duas barras do começo da linha e troque o link):
-  // { url: "https://www.youtube.com/watch?v=XXXXXXXXXXX", tag: "Debate" },
+  // Para adicionar outro vídeo: copie uma linha abaixo, troque o link e (se quiser) a etiqueta.
+  // Os vídeos mais novos podem ficar no topo da lista. Não esqueça a vírgula no fim da linha.
+  { url: "https://www.youtube.com/watch?v=RugVB17uRVM", channel: "Band Jornalismo", tag: "Debate" },
+  { url: "https://www.youtube.com/watch?v=_WOnIouKC9Q", channel: "TV Senado", tag: "Resultado" },
+  { url: "https://www.youtube.com/watch?v=OJv5OzinKNw", channel: "UOL", tag: "Discurso" }
 ];
 
 export type NewsFeed = { name: string; url: string };
